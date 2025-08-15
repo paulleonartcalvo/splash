@@ -1,11 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import type { FastifyPluginCallback } from "fastify";
+import fp from "fastify-plugin";
 
-export const authPlugin: FastifyPluginCallback = async (
-  fastify,
-  opts,
-  done
-) => {
+const authPluginFn: FastifyPluginCallback = async (fastify) => {
   const url = Bun.env.SUPABASE_URL;
   const key = Bun.env.SUPABASE_KEY;
 
@@ -21,9 +18,18 @@ export const authPlugin: FastifyPluginCallback = async (
     },
   });
 
-  const { data, error } = await supabase.auth.getUser("test");
-  if (error) {
-    throw new Error(`Supabase connection failed: ${error.message}`);
+  // Test connection
+  try {
+    const response = await fetch(`${url}/rest/v1/`, {
+      headers: { apikey: key },
+    });
+    if (!response.ok) {
+      throw new Error(`Supabase connection failed: ${response.status}`);
+    }
+
+    fastify.log.info("✅ Supabase connection succeeded");
+  } catch (error) {
+    throw new Error(`Supabase connection failed: ${error}`);
   }
 
   fastify.decorate("supabase", supabase);
@@ -43,5 +49,6 @@ export const authPlugin: FastifyPluginCallback = async (
   });
 
   fastify.log.info("✅ Supabase auth plugin registered");
-  done();
 };
+
+export const authPlugin = fp(authPluginFn);

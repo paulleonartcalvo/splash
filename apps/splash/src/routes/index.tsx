@@ -1,3 +1,4 @@
+import { LoginForm } from "@/components/login-form";
 import { createFileRoute } from "@tanstack/react-router";
 import Splash from "../assets/splash.svg?react";
 
@@ -12,6 +13,7 @@ function RouteComponent() {
       <h1 className="scroll-m-20 text-center text-4xl font-extrabold ">
         Pool reservations made easy
       </h1>
+      <LoginForm className="w-1/3" />
     </div>
   );
 }

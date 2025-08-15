@@ -1,9 +1,10 @@
+import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { SupabaseClient } from "@supabase/supabase-js";
-import type { FastifyTypebox } from "..";
 
-export const authRoutes = async (fastify: FastifyTypebox) => {
+export const authRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   const supabase = fastify.getDecorator<SupabaseClient>("supabase");
+  
 
   fastify.post(
     "/login",
@@ -31,6 +32,7 @@ export const authRoutes = async (fastify: FastifyTypebox) => {
       try {
         const { email } = request.body;
 
+        console.log("SUPABASE");
         // Send magic link via Supabase
         const { data, error } = await supabase.auth.signInWithOtp({
           email,
