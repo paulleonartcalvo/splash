@@ -6,6 +6,8 @@ import Fastify, {
     type RawRequestDefaultExpression,
     type RawServerDefault,
 } from "fastify";
+
+import cors from "@fastify/cors";
 import { authPlugin } from "./plugins/auth";
 import { authRoutes } from "./routes/auth";
 
@@ -21,9 +23,10 @@ const fastify = Fastify({
   logger: true,
 }).withTypeProvider<TypeBoxTypeProvider>();
 
+fastify.register(cors);
 await fastify.register(authPlugin);
 
-fastify.register(authRoutes, { prefix: '/auth' });
+fastify.register(authRoutes, { prefix: "/auth" });
 
 fastify.listen({ port: 3000 }, function (err) {
   if (err) {

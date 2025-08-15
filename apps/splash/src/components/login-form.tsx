@@ -29,20 +29,23 @@ const loginFormSchema = z.object({
 
 export function LoginForm({
   className,
-  onSubmit,
+  onSubmitLoginForm,
   ...props
 }: React.ComponentProps<"div"> & {
-  onSubmit?: (values: z.infer<typeof loginFormSchema>) => void;
+  onSubmitLoginForm?: (values: z.infer<typeof loginFormSchema>) => void;
 }) {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     mode: "all",
+    defaultValues: {
+      email: "",
+    },
     resolver: zodResolver(loginFormSchema),
   });
 
   const onSubmitValid: SubmitHandler<z.infer<typeof loginFormSchema>> = (
     values
   ) => {
-    onSubmit?.(values);
+    onSubmitLoginForm?.(values);
   };
 
   const onSubmitInValid: SubmitErrorHandler<z.infer<typeof loginFormSchema>> = (
@@ -61,27 +64,28 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="you@gmail.com" {...field} />
-                      </FormControl>
-                      {/* <FormDescription>
+          <form onSubmit={form.handleSubmit(onSubmitValid, onSubmitInValid)}>
+            <Form {...form}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-3">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="you@gmail.com" {...field} />
+                        </FormControl>
+                        {/* <FormDescription>
                         This is your public display name.
                       </FormDescription> */}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {/* <div className="grid gap-3">
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {/* <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
@@ -93,13 +97,14 @@ export function LoginForm({
                 </div>
                 <Input id="password" type="password" required />
               </div> */}
-              <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login with email code
-                </Button>
+                <div className="flex flex-col gap-3">
+                  <Button type="submit" className="w-full">
+                    Login with email code
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Form>
+            </Form>
+          </form>
         </CardContent>
       </Card>
     </div>
