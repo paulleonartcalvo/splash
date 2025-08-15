@@ -148,11 +148,11 @@ This is a personal project solving a real problem at my gym, but contributions a
 - [ ] Mobile app
 - [ ] Integration with gym management systems
 
-## Why This Matters
+## About This Project
 
-Sometimes the best portfolio projects solve problems you face every day. Real-time collaborative applications are surprisingly fun to architect, and this solves an actual pain point that affects hundreds of gym members.
+This project was born from a real frustration with existing pool booking systems. It focuses on solving genuine user experience problems while exploring modern real-time web technologies.
 
-Building things that work > complaining about things that don't. 🚀
+The goal is to create a booking system that actually works for both users and facility managers.
 
 ---
 
