@@ -1,19 +1,56 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  useForm,
+  type SubmitErrorHandler,
+  type SubmitHandler,
+} from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
+const loginFormSchema = z.object({
+  email: z.email(),
+});
 
 export function LoginForm({
   className,
+  onSubmit,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  onSubmit?: (values: z.infer<typeof loginFormSchema>) => void;
+}) {
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    mode: "all",
+    resolver: zodResolver(loginFormSchema),
+  });
+
+  const onSubmitValid: SubmitHandler<z.infer<typeof loginFormSchema>> = (
+    values
+  ) => {
+    onSubmit?.(values);
+  };
+
+  const onSubmitInValid: SubmitErrorHandler<z.infer<typeof loginFormSchema>> = (
+    errors
+  ) => {
+    alert(JSON.stringify(errors.email?.message));
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -24,15 +61,24 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <Form {...form}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="you@gmail.com" {...field} />
+                      </FormControl>
+                      {/* <FormDescription>
+                        This is your public display name.
+                      </FormDescription> */}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
               {/* <div className="grid gap-3">
@@ -53,9 +99,9 @@ export function LoginForm({
                 </Button>
               </div>
             </div>
-          </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

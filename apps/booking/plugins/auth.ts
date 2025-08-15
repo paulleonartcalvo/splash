@@ -1,6 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type User } from "@supabase/supabase-js";
 import type { FastifyPluginCallback } from "fastify";
 import fp from "fastify-plugin";
+
+
+export type VerifyTokenDecorator = (token: string) => Promise<User>
+ 
 
 const authPluginFn: FastifyPluginCallback = async (fastify) => {
   const url = Bun.env.SUPABASE_URL;

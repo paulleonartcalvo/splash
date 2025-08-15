@@ -4,7 +4,6 @@ import { SupabaseClient } from "@supabase/supabase-js";
 
 export const authRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   const supabase = fastify.getDecorator<SupabaseClient>("supabase");
-  
 
   fastify.post(
     "/login",
@@ -32,13 +31,12 @@ export const authRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       try {
         const { email } = request.body;
 
-        console.log("SUPABASE");
         // Send magic link via Supabase
-        const { data, error } = await supabase.auth.signInWithOtp({
+        const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
             shouldCreateUser: true,
-            emailRedirectTo: `${process.env.FRONTEND_URL}/auth/callback`,
+            emailRedirectTo: `${process.env.FRONTEND_URL}`,
             data: {
               // Custom user metadata
               app_source: "splash",

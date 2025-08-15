@@ -20,14 +20,27 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
-import { BellIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import type { Session } from "@supabase/supabase-js";
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
+import { BellIcon, UserIcon } from "lucide-react";
 import Splash from "../assets/splash.svg?react";
-export const Route = createRootRoute({
+
+export type AppRouterContext = {
+  session: Session | null;
+};
+
+export const Route = createRootRouteWithContext<AppRouterContext>()({
   component: RootComponent,
 });
 
 function RootComponent() {
+  const { session, signOut } = useAuth();
+
   return (
     <div className="flex flex-col gap-4 justify-center items-start h-full w-full p-3">
       <div className="flex justify-space-between items-center gap-4 w-full">
@@ -56,10 +69,8 @@ function RootComponent() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar>
-                <AvatarFallback
-                  className="select-none"
-                >
-                  ER
+                <AvatarFallback className="select-none">
+                  {session?.user.email?.at(0)?.toUpperCase() ?? <UserIcon />}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
@@ -106,11 +117,16 @@ function RootComponent() {
               <DropdownMenuItem>GitHub</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuItem disabled>API</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                Log out
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-              </DropdownMenuItem>
+
+              {session && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut}>
+                    Log out
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
