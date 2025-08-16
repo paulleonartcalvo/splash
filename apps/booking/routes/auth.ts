@@ -5,6 +5,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 export const authRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   const supabase = fastify.getDecorator<SupabaseClient>("supabase");
 
+
   fastify.post(
     "/login",
     {

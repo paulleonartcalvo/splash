@@ -6,12 +6,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -21,13 +17,15 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import { InviteService } from "@/services/invite/inviteService";
 import type { Session } from "@supabase/supabase-js";
 import {
   Link,
   Outlet,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { BellIcon, UserIcon } from "lucide-react";
+import { BellDotIcon, BellIcon, UserIcon } from "lucide-react";
+import { toast } from "react-toastify";
 import Splash from "../assets/splash.svg?react";
 
 export type AppRouterContext = {
@@ -40,6 +38,10 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 
 function RootComponent() {
   const { session, signOut } = useAuth();
+
+  const mutation = InviteService.useCreateInviteMutation();
+
+  const invitesResult = InviteService.useGetUserInvitesQuery();
 
   return (
     <div className="flex flex-col gap-4 justify-center items-start h-full w-full p-3">
@@ -64,7 +66,11 @@ function RootComponent() {
         </NavigationMenu>
         <div className="flex flex-1 justify-end items-center gap-4">
           <Button variant="secondary" size="icon" className="size-8">
-            <BellIcon />
+            {invitesResult.data && invitesResult.data.length > 0 ? (
+              <BellDotIcon className="text-emerald-400" />
+            ) : (
+              <BellIcon />
+            )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -97,17 +103,25 @@ function RootComponent() {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem>Email</DropdownMenuItem>
-                      <DropdownMenuItem>Message</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>More...</DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
+                <DropdownMenuItem
+                  onClick={() => {
+                    toast.promise(
+                      mutation.mutateAsync({
+                        email: "plleonartcalvo@gmail.com",
+                        organizationId: "0843547e-4f9d-4dfe-a6e1-facb4d1ebf1a",
+                        locationId: 1,
+                      }),
+                      {
+                        pending: "Creating invite",
+                        success: "Invite created",
+                        error: "Error creating invite",
+                      }
+                    );
+                  }}
+                >
+                  Invite users by email
+                </DropdownMenuItem>
+
                 <DropdownMenuItem>
                   New Team
                   <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>

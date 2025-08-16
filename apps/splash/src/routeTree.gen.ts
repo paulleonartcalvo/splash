@@ -10,33 +10,44 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SessionsOrganizationLocationIndexRouteImport } from './routes/sessions/$organization/$location/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsOrganizationLocationIndexRoute =
+  SessionsOrganizationLocationIndexRouteImport.update({
+    id: '/sessions/$organization/$location/',
+    path: '/sessions/$organization/$location/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/sessions/$organization/$location/': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/sessions/$organization/$location'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/sessions/$organization/$location'
+  id: '__root__' | '/' | '/sessions/$organization/$location/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SessionsOrganizationLocationIndexRoute: typeof SessionsOrganizationLocationIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +59,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions/$organization/$location/': {
+      id: '/sessions/$organization/$location/'
+      path: '/sessions/$organization/$location'
+      fullPath: '/sessions/$organization/$location'
+      preLoaderRoute: typeof SessionsOrganizationLocationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SessionsOrganizationLocationIndexRoute:
+    SessionsOrganizationLocationIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
