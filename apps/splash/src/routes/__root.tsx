@@ -59,6 +59,11 @@ function RootComponent() {
                 <Link to="/">My Reservations</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             {/* <NavigationMenuItem>
               <NavigationMenuLink asChild><Link to="/">How it Works</Link></NavigationMenuLink>
             </NavigationMenuItem> */}

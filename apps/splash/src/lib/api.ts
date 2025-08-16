@@ -1,12 +1,16 @@
-import { supabase } from './supabase'
+import { supabase } from './supabase';
 
 export const createRequest = async <T = any>(url: string, options?: RequestInit): Promise<T> => {
   // Get current session token
   const { data: { session } } = await supabase.auth.getSession()
   
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options?.headers as Record<string, string>),
+  }
+
+  // Only add Content-Type if there's a body
+  if (options?.body) {
+    headers['Content-Type'] = 'application/json';
   }
 
   // Add Authorization header if user is authenticated

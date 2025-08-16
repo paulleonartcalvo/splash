@@ -92,4 +92,85 @@ export const inviteRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
     }
   );
+
+  // POST /invites/:id/accept - Accept/consume an invite
+  fastify.post(
+    "/:id/accept",
+    {
+      schema: {
+        params: Type.Object({
+          id: Type.Number(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              organizationId: Type.String(),
+              locationId: Type.Number(),
+            }),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params;
+      const user = request.getDecorator<User>("user");
+
+      if (!user?.email) {
+        return reply.code(401).send({
+          error: "User email not found",
+        });
+      }
+
+      const result = await inviteService.consumeInvite(
+        id,
+        user.id,
+        user.email
+      );
+
+      reply.send({
+        data: result,
+      });
+    }
+  );
+
+  // POST /invites/:id/reject - Reject/decline an invite
+  fastify.post(
+    "/:id/reject",
+    {
+      schema: {
+        params: Type.Object({
+          id: Type.Number(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              inviteId: Type.Number(),
+            }),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params;
+      const user = request.getDecorator<User>("user");
+
+      if (!user?.email) {
+        return reply.code(401).send({
+          error: "User email not found",
+        });
+      }
+
+      const result = await inviteService.rejectInvite(id, user.email);
+
+      reply.send({
+        data: result,
+      });
+    }
+  );
 };

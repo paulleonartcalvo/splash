@@ -13,6 +13,8 @@ import { fastifyDrizzle } from "./plugins/drizzle";
 import { errorHandlerPlugin } from "./plugins/errorHandler";
 import { authRoutes } from "./routes/auth";
 import { inviteRoutes } from "./routes/invites";
+import { locationRoutes } from "./routes/locations";
+import { organizationRoutes } from "./routes/organizations";
 
 export type FastifyTypebox = FastifyInstance<
   RawServerDefault,
@@ -34,9 +36,10 @@ fastify.register(fastifyDrizzle);
 
 await fastify.register(authPlugin);
 
-fastify.register(authRoutes, { prefix: "/auth" });
-fastify.register(inviteRoutes, { prefix: "/invites" });
-
+await fastify.register(authRoutes, { prefix: "/auth" });
+await fastify.register(inviteRoutes, { prefix: "/invites" });
+await fastify.register(organizationRoutes, { prefix: "/organizations" });
+await fastify.register(locationRoutes, { prefix: "/locations" });
 
 fastify.listen({ port: 3000 }, function (err) {
   if (err) {

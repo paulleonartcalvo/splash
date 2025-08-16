@@ -1,7 +1,7 @@
 import { createRequest } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-interface UserInvite {
+export interface UserInvite {
   id: number;
   createdAt: string;
   invitedUserEmail: string;
@@ -17,12 +17,12 @@ export const useGetUserInvitesQuery = () => {
   return useQuery({
     queryKey: ["invites", "user"],
     queryFn: () =>
-      createRequest<{data: UserInvite[]}>(
+      createRequest<{ data: UserInvite[] }>(
         `${import.meta.env["VITE_BOOKING_API_URL"]}/invites`,
         {
           method: "GET",
         }
       ),
-      select: (data) => data.data
+    select: (data) => data.data,
   });
 };

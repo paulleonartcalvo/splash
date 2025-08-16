@@ -16,7 +16,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { routeTree } from "./routeTree.gen";
 
 // Create a client
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes

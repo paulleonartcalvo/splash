@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as SessionsOrganizationLocationIndexRouteImport } from './routes/sessions/$organization/$location/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsOrganizationLocationIndexRoute =
@@ -26,27 +32,31 @@ const SessionsOrganizationLocationIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/sessions/$organization/$location/': typeof SessionsOrganizationLocationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sessions/$organization/$location'
+  fullPaths: '/' | '/dashboard' | '/sessions/$organization/$location'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sessions/$organization/$location'
-  id: '__root__' | '/' | '/sessions/$organization/$location/'
+  to: '/' | '/dashboard' | '/sessions/$organization/$location'
+  id: '__root__' | '/' | '/dashboard/' | '/sessions/$organization/$location/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
   SessionsOrganizationLocationIndexRoute: typeof SessionsOrganizationLocationIndexRoute
 }
 
@@ -57,6 +67,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions/$organization/$location/': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
   SessionsOrganizationLocationIndexRoute:
     SessionsOrganizationLocationIndexRoute,
 }
