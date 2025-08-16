@@ -14,7 +14,7 @@ function RouteComponent() {
   const mutation = AuthService.useLoginMutation();
 
   return (
-    <div className="flex flex-col justify-center items-center h-full w-full gap-16">
+    <div className="flex flex-col justify-center items-center h-full w-full gap-8">
       <Splash height="96px" className="text-teal-400" />
       <h1 className="scroll-m-20 text-center text-4xl font-extrabold ">
         Pool reservations made easy

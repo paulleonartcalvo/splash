@@ -25,7 +25,7 @@ export function Dashboard() {
             toast.promise(rejectInviteMutation.mutateAsync(invite.id), {
               error: "Error occurred while rejecting invite",
               success: "",
-              pending: ""
+              pending: "Rejecting"
             })
           }
         />

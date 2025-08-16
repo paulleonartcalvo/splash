@@ -23,7 +23,7 @@ export function InviteList({
   ...rest
 }: InviteListProps) {
   return (
-    <div className={cn("", className)} {...rest}>
+    <div className={cn("flex flex-col gap-2", className)} {...rest}>
       {invites.map((invite) => (
         <Card className="w-full max-w-sm">
           <CardHeader>

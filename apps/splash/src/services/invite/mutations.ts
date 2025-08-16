@@ -1,6 +1,6 @@
 import { createRequest } from "@/lib/api";
-import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/main";
+import { useMutation } from "@tanstack/react-query";
 
 interface CreateInviteRequest {
   email: string;
@@ -9,7 +9,6 @@ interface CreateInviteRequest {
 }
 
 interface CreateInviteSuccessResponse {
-  success: true;
   data: {
     id: number;
     createdAt: string;
@@ -21,11 +20,12 @@ interface CreateInviteSuccessResponse {
 }
 
 interface CreateInviteErrorResponse {
-  success: false;
   error: string;
 }
 
-type CreateInviteResponse = CreateInviteSuccessResponse | CreateInviteErrorResponse;
+type CreateInviteResponse =
+  | CreateInviteSuccessResponse
+  | CreateInviteErrorResponse;
 
 export const useCreateInviteMutation = () => {
   return useMutation({
@@ -37,12 +37,8 @@ export const useCreateInviteMutation = () => {
           body: JSON.stringify(request),
         }
       ),
-    onSuccess: (data) => {
-      if (data.success) {
-        console.log("Invite created successfully:", data.data);
-        // Invalidate user invites query to refetch
-        queryClient.invalidateQueries({ queryKey: ["invites", "user"] });
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invites", "user"] });
     },
     onError: (error) => {
       console.error("Failed to create invite:", error.message);
