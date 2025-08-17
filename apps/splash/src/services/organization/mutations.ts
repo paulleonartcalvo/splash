@@ -1,0 +1,46 @@
+import { createRequest } from "@/lib/api";
+import { queryClient } from "@/main";
+import { useMutation } from "@tanstack/react-query";
+
+interface CreateOrganizationRequest {
+  name: string;
+  slug: string;
+  createdBy: string;
+}
+
+interface CreateOrganizationSuccessResponse {
+  data: {
+    id: string;
+    name: string;
+    slug: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface CreateOrganizationErrorResponse {
+  error: string;
+}
+
+type CreateOrganizationResponse =
+  | CreateOrganizationSuccessResponse
+  | CreateOrganizationErrorResponse;
+
+export const useCreateOrganizationMutation = () => {
+  return useMutation({
+    mutationFn: (request: CreateOrganizationRequest) =>
+      createRequest<CreateOrganizationResponse>(
+        `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations`,
+        {
+          method: "POST",
+          body: JSON.stringify(request),
+        }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organizations", "user"] });
+    },
+    onError: (error) => {
+      console.error("Failed to create organization:", error.message);
+    },
+  });
+};

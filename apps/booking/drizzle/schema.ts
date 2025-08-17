@@ -100,3 +100,10 @@ export const userLocations = pgTable("user_locations", {
 		}).onUpdate("cascade").onDelete("cascade"),
 	unique("user_locations_user_loc_unique").on(table.userId, table.locationId),
 ]);
+
+export const roles = pgTable("roles", {
+	id: text().primaryKey().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	name: text().notNull(),
+});

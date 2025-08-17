@@ -1,7 +1,4 @@
 import { InviteService } from "@/services/invite/inviteService";
-import { toast } from "react-toastify";
-import { InviteList } from "./InviteList";
-import { Skeleton } from "./ui/skeleton";
 
 export function Dashboard() {
   const invitesResult = InviteService.useGetUserInvitesQuery();
@@ -11,12 +8,12 @@ export function Dashboard() {
 
   return (
     <div className="w-full h-full ">
-      {invitesResult.data ? (
+      {/* {invitesResult.data ? (
         <InviteList
           invites={invitesResult.data}
           onClickAcceptInvite={(invite) =>
             toast.promise(acceptInviteMutation.mutateAsync(invite.id), {
-              pending: `Accepting invite to ${invite.locationName}`,
+              loading: `Accepting invite to ${invite.locationName}`,
               success: `Joined ${invite.locationName}`,
               error: "Error occurred while accepting invite",
             })
@@ -25,13 +22,13 @@ export function Dashboard() {
             toast.promise(rejectInviteMutation.mutateAsync(invite.id), {
               error: "Error occurred while rejecting invite",
               success: "",
-              pending: "Rejecting"
+              loading: "Rejecting"
             })
           }
         />
       ) : (
         <Skeleton />
-      )}
+      )} */}
     </div>
   );
 }

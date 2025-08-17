@@ -2,7 +2,6 @@ import { LoginForm } from "@/components/login-form";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthService } from "@/services/auth/authService";
 import { createFileRoute } from "@tanstack/react-router";
-import { toast } from "react-toastify";
 import Splash from "../assets/splash.svg?react";
 
 export const Route = createFileRoute("/")({
@@ -22,13 +21,6 @@ function RouteComponent() {
       {!auth.session && (
         <LoginForm
           className="w-1/3"
-          onSubmitLoginForm={(values) => {
-            toast.promise(mutation.mutateAsync(values.email), {
-              pending: "Sending magic link",
-              success: "Magic link sent",
-              error: "Failed to send magic link",
-            });
-          }}
         />
       )}
     </div>

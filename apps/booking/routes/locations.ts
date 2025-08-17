@@ -41,7 +41,7 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       const user = request.getDecorator<User>("user");
       const { organization_id } = request.query;
 
-      const userLocations = await locationService.getUserLocations(
+      const userLocations = await locationService.getLocations(
         user.id,
         organization_id
       );

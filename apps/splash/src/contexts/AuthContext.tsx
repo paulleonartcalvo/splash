@@ -28,9 +28,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
       throw error;
     }
+
     // Session will be automatically updated via onAuthStateChange
   };
 
@@ -52,9 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ session, loading, signOut }}
-    >
+    <AuthContext.Provider value={{ session, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

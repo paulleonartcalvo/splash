@@ -42,4 +42,51 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
       });
     }
   );
+
+  // POST /organizations - Create a new organization
+  fastify.post(
+    "/",
+    {
+      schema: {
+        body: Type.Object({
+          name: Type.String(),
+          slug: Type.String(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              id: Type.String(),
+              name: Type.String(),
+              slug: Type.String(),
+              createdAt: Type.String(),
+              updatedAt: Type.String(),
+            }),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = request.getDecorator<User>("user");
+      const { name, slug } = request.body;
+
+      try {
+        const organization = await organizationService.createOrganization({
+          name,
+          slug,
+          createdBy: user.id,
+        });
+
+        reply.send({
+          data: organization,
+        });
+      } catch (error) {
+        reply.status(400).send({
+          error: error instanceof Error ? error.message : "Failed to create organization",
+        });
+      }
+    }
+  );
 };

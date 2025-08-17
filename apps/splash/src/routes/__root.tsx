@@ -1,33 +1,34 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CreateOrganizationForm } from "@/components/CreateOrganizationForm";
+import { InviteUserForm } from "@/components/InviteUserForm";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
+  Navbar05,
+  type NotificationItem,
+  type UserMenuItem,
+} from "@/components/ui/shadcn-io/navbar-05";
 import { useAuth } from "@/contexts/AuthContext";
+import { router } from "@/main";
 import { InviteService } from "@/services/invite/inviteService";
+import { OrganizationService } from "@/services/organization/organizationService";
 import type { Session } from "@supabase/supabase-js";
 import {
   HeadContent,
-  Link,
   Outlet,
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { BellDotIcon, BellIcon, UserIcon } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Splash from "../assets/splash.svg?react";
 
 export type AppRouterContext = {
@@ -48,9 +49,134 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 function RootComponent() {
   const { session, signOut } = useAuth();
 
-  const mutation = InviteService.useCreateInviteMutation();
+  const inviteMutation = InviteService.useCreateInviteMutation();
 
   const invitesResult = InviteService.useGetUserInvitesQuery();
+
+
+  const createOrganizationMutation = OrganizationService.useCreateOrganizationMutation();
+
+
+  // Convert invites to notifications
+  const notifications: NotificationItem[] = [
+    ...(invitesResult.data ?? []).map((invite) => ({
+      id: invite.id.toString(),
+      type: "item" as const,
+      title: `Invite to ${invite.organizationName}`,
+      subtitle: invite.locationName,
+      href: `/invites/${invite.id}`,
+    })),
+    // Add "View all" notification
+    {
+      id: "view-all",
+      type: "all" as const,
+      title: "View all notifications",
+      href: "/invites",
+    },
+  ];
+
+  const userMenuItems: UserMenuItem[] = [
+    {
+      id: "team",
+      component: <DropdownMenuItem>Team</DropdownMenuItem>,
+    },
+    {
+      id: "invite-users",
+      component: (
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              Invite users by email
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Invite user</DialogTitle>
+              <DialogDescription>
+                Send an invitation to join your organization and locations
+              </DialogDescription>
+            </DialogHeader>
+            <InviteUserForm
+              formId="invite-user-form"
+              organization="0843547e-4f9d-4dfe-a6e1-facb4d1ebf1a"
+              onSubmit={(values) => {
+                toast.promise(
+                  inviteMutation.mutateAsync({
+                    email: values.email,
+                    organizationId: values.organizationId,
+                    locationId: Number(values.location[0]), // Use first selected location
+                  }),
+                  {
+                    loading: "Creating invite...",
+                    success: "Invite sent successfully!",
+                    error: "Failed to send invite",
+                  }
+                );
+              }}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button form="invite-user-form" type="submit">
+                Send Invite
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ),
+    },
+    {
+      id: "new-organization",
+      component: (
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              New organization
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>New organization</DialogTitle>
+              <DialogDescription>
+                You will be automatically added to it
+              </DialogDescription>
+            </DialogHeader>
+            <CreateOrganizationForm
+              formId="create-org-form"
+              onSubmit={(values) => {
+                if (!session?.user?.id) {
+                  toast.error("You must be logged in to create an organization");
+                  return;
+                }
+
+                toast.promise(
+                  createOrganizationMutation.mutateAsync({
+                    name: values.name,
+                    slug: values.slug,
+                    createdBy: session.user.id,
+                  }),
+                  {
+                    loading: "Creating organization...",
+                    success: "Organization created successfully!",
+                    error: "Failed to create organization",
+                  }
+                );
+              }}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button form="create-org-form" type="submit">
+                Create
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -58,110 +184,38 @@ function RootComponent() {
       <Scripts />
       <div className="flex flex-col gap-4 justify-center items-start h-full w-full p-3">
         <div className="flex justify-space-between items-center gap-4 w-full">
-          <Splash className="text-teal-400" height="32px" />
-          <NavigationMenu viewport={false} orientation="horizontal">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/">Pool sessions</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/">My Reservations</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/dashboard">Dashboard</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              {/* <NavigationMenuItem>
-              <NavigationMenuLink asChild><Link to="/">How it Works</Link></NavigationMenuLink>
-            </NavigationMenuItem> */}
-            </NavigationMenuList>
-          </NavigationMenu>
-          <div className="flex flex-1 justify-end items-center gap-4">
-            <Button variant="secondary" size="icon" className="size-8">
-              {invitesResult.data && invitesResult.data.length > 0 ? (
-                <BellDotIcon className="text-emerald-400" />
-              ) : (
-                <BellIcon />
-              )}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar>
-                  <AvatarFallback className="select-none">
-                    {session?.user.email?.at(0)?.toUpperCase() ?? <UserIcon />}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="start">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Billing
-                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Settings
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Keyboard shortcuts
-                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      toast.promise(
-                        mutation.mutateAsync({
-                          email: "plleonartcalvo@gmail.com",
-                          organizationId:
-                            "0843547e-4f9d-4dfe-a6e1-facb4d1ebf1a",
-                          locationId: 1,
-                        }),
-                        {
-                          pending: "Creating invite",
-                          success: "Invite created",
-                          error: "Error creating invite",
-                        }
-                      );
-                    }}
-                  >
-                    Invite users by email
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem>
-                    New Team
-                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>GitHub</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuItem disabled>API</DropdownMenuItem>
-
-                {session && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut}>
-                      Log out
-                      <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <Navbar05
+            userEmail={session?.user.email}
+            userName={session?.user.email}
+            logo={<Splash className="text-teal-400" height="32px" />}
+            notifications={notifications}
+            navigationLinks={[
+              { href: "/", label: "Home" },
+              { href: "/", label: "Sessions" },
+              { href: "/", label: "My Reservations" },
+              { href: "/", label: "Dashboard" },
+            ]}
+            onNavItemClick={(href) => router.navigate({ to: href })}
+            onNotificationClick={(notification) => {
+              if (notification.href) {
+                router.navigate({ to: notification.href });
+              } else if (notification.onClick) {
+                notification.onClick();
+              }
+            }}
+            onReadNotification={(notification) => {
+              // Mark notification as read
+              console.log("Marking notification as read:", notification.id);
+              // This is where you would typically call an API to mark as read
+              // e.g., markNotificationAsRead(notification.id)
+            }}
+            userMenuItems={userMenuItems}
+            onUserItemClick={(item) => {
+              if (item === "logout") {
+                signOut();
+              }
+            }}
+          />
         </div>
 
         <div className="flex-1 w-full">

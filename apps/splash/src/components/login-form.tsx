@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { AuthService } from "@/services/auth/authService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useForm,
   type SubmitErrorHandler,
   type SubmitHandler,
 } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   Form,
@@ -23,17 +25,18 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { Spinner } from "./ui/shadcn-io/spinner";
+
 const loginFormSchema = z.object({
   email: z.email(),
 });
 
 export function LoginForm({
   className,
-  onSubmitLoginForm,
   ...props
-}: React.ComponentProps<"div"> & {
-  onSubmitLoginForm?: (values: z.infer<typeof loginFormSchema>) => void;
-}) {
+}: React.ComponentProps<"div">) {
+  const mutation = AuthService.useLoginMutation();
+
   const form = useForm<z.infer<typeof loginFormSchema>>({
     mode: "all",
     defaultValues: {
@@ -45,7 +48,11 @@ export function LoginForm({
   const onSubmitValid: SubmitHandler<z.infer<typeof loginFormSchema>> = (
     values
   ) => {
-    onSubmitLoginForm?.(values);
+    toast.promise(mutation.mutateAsync(values.email), {
+      loading: "Sending magic link",
+      success: "Magic link sent",
+      error: "Failed to send magic link",
+    });
   };
 
   const onSubmitInValid: SubmitErrorHandler<z.infer<typeof loginFormSchema>> = (
@@ -65,8 +72,8 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmitValid, onSubmitInValid)}>
-            <Form {...form}>
-              <div className="flex flex-col gap-6">
+            <Form {...form} >
+              <div className="grid gap-6">
                 <div className="grid gap-3">
                   <FormField
                     control={form.control}
@@ -85,23 +92,15 @@ export function LoginForm({
                     )}
                   />
                 </div>
-                {/* <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
-              </div> */}
-                <div className="flex flex-col gap-3">
-                  <Button type="submit" className="w-full">
-                    Login with email code
-                  </Button>
-                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending && <Spinner />}
+                  Login with email code
+                </Button>
               </div>
             </Form>
           </form>

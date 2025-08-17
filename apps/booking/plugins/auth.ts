@@ -58,8 +58,8 @@ const authPluginFn: FastifyPluginAsyncTypebox = async (fastify) => {
 
   // Global auth hook - skip for login route
   fastify.addHook('preHandler', async (request, reply) => {
-    // Skip auth for login route
-    if (request.url === '/auth/login') {
+    // Skip auth for login route and documentation routes
+    if (request.url === '/auth/login' || request.url.startsWith('/documentation')) {
       return;
     }
 
@@ -70,7 +70,7 @@ const authPluginFn: FastifyPluginAsyncTypebox = async (fastify) => {
 
     try {
       const token = authHeader.replace('Bearer ', '');
-      fastify.log.info(`Attempting to verify token: ${token.substring(0, 20)}...`);
+      fastify.log.info(`Attempting to verify token: ${token}...`);
       const user = await fastify.getDecorator<VerifyTokenFn>('verifyToken')(token);
       fastify.log.info(`Token verified for user: ${user.id}`);
       request.setDecorator('user', user)

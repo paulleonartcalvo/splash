@@ -10,7 +10,7 @@ import {
 import ReactDOM from "react-dom/client";
 
 // Import the generated route tree
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider, useTheme } from "./components/ui/theme-provider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { routeTree } from "./routeTree.gen";
@@ -44,9 +44,10 @@ function App({ context, ...restProps }: RouterProps<typeof router>) {
   const { session } = useAuth();
 
   const theme = useTheme();
+
   return (
     <>
-      <ToastContainer position="bottom-right" theme={theme.theme} />
+      <Toaster theme={theme.theme} position="bottom-right" />
       <RouterProvider {...restProps} context={{ session }} />
     </>
   );
