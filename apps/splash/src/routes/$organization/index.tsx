@@ -1,4 +1,5 @@
 import { CreateLocationForm } from "@/components/CreateLocationForm";
+import { LoadingMessage } from "@/components/LoadingMessage";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,7 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { LocationService } from "@/services/location/locationService";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/$organization/")({
   component: RouteComponent,
+  pendingMs: 0,
 });
 
 function RouteComponent() {
@@ -41,12 +42,7 @@ function RouteComponent() {
 
   if (locations.length > 0) {
     return (
-      <div className="text-center flex flex-col justify-center items-center gap-4 h-full w-full">
-        <Spinner />
-        <p className="text-muted-foreground">
-          Redirecting you to your {organization.name} location...
-        </p>
-      </div>
+      <LoadingMessage message={`Redirecting you to your ${organization.name} location...`}/>
     );
   }
 
@@ -76,7 +72,7 @@ function RouteComponent() {
                   navigate({
                     to: "$location",
                     params: {
-                      location: v.data.id.toString(),
+                      location: v.data.id,
                     },
                   });
                 });

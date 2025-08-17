@@ -17,16 +17,20 @@ type LocationPickerProps = {
   onChange?: (location: string) => void;
   value: string;
   handleCreateNew?: () => void;
+  className?: string;
+  disabled?: boolean;
   //   defaultValue?: string
 } & Omit<
   ComboboxProps,
-  "onValueChange" | "value" | "defaultValue" | "multiple"
+  "onValueChange" | "value" | "defaultValue" | "multiple" | "className" | "data" | "type"
 >;
 export function LocationPicker({
   organizationId,
   onChange,
   value,
   handleCreateNew,
+  disabled,
+  className,
   ...comboboxProps
 }: LocationPickerProps) {
   const locationsResult = LocationService.useGetLocationsQuery(
@@ -45,19 +49,19 @@ export function LocationPicker({
       onValueChange={onChange}
       data={
         locationsResult.data?.data.map((item) => ({
-          value: item.id.toString(),
+          value: item.id,
           label: item.name,
         })) ?? []
       }
     >
-      <ComboboxTrigger />
+      <ComboboxTrigger disabled={disabled} className={className} />
       <ComboboxContent>
         {handleCreateNew && <ComboboxCreateNew onCreateNew={handleCreateNew} />}
         <ComboboxInput />
         <ComboboxList>
           <ComboboxEmpty />
           {locationsResult.data?.data.map((loc) => (
-            <ComboboxItem key={loc.id} value={loc.id.toString()}>
+            <ComboboxItem key={loc.id} value={loc.id}>
               {loc.name}
             </ComboboxItem>
           ))}

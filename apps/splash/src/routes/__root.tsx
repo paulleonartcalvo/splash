@@ -1,3 +1,4 @@
+import { CreateLocationForm } from "@/components/CreateLocationForm";
 import { CreateOrganizationForm } from "@/components/CreateOrganizationForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { LocationPicker } from "@/components/LocationPicker";
@@ -22,6 +23,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { router } from "@/main";
 import { InviteService } from "@/services/invite/inviteService";
+import { LocationService } from "@/services/location/locationService";
 import { OrganizationService } from "@/services/organization/organizationService";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -38,6 +40,7 @@ import Splash from "../assets/splash.svg?react";
 
 export type AppRouterContext = {
   session: Session | null;
+  loading: boolean;
 };
 
 export const Route = createRootRouteWithContext<AppRouterContext>()({
@@ -55,14 +58,15 @@ function RootComponent() {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const params = useParams({ strict: false });
-  
+
   // Extract organization and location from route parameters
   const urlOrganization = params.organization || "";
   const urlLocation = params.location || "";
-  
-  const [selectedOrganization, setSelectedOrganization] = useState<string>(urlOrganization);
+
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<string>(urlOrganization);
   const [selectedLocation, setSelectedLocation] = useState<string>(urlLocation);
-  
+
   // Update state when URL changes
   useEffect(() => {
     setSelectedOrganization(urlOrganization);
@@ -75,6 +79,7 @@ function RootComponent() {
 
   const createOrganizationMutation =
     OrganizationService.useCreateOrganizationMutation();
+  const createLocationMutation = LocationService.useCreateLocationMutation();
 
   // Convert invites to notifications
   const notifications: NotificationItem[] = [
@@ -123,7 +128,7 @@ function RootComponent() {
                   inviteMutation.mutateAsync({
                     email: values.email,
                     organizationId: values.organizationId,
-                    locationId: Number(values.location[0]), // Use first selected location
+                    locationId: values.location[0], // Use first selected location
                   }),
                   {
                     loading: "Creating invite...",
@@ -197,6 +202,50 @@ function RootComponent() {
         </Dialog>
       ),
     },
+    {
+      id: "new-location",
+      component: (
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              New location
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>New location</DialogTitle>
+              <DialogDescription>
+                You will be automatically added to it
+              </DialogDescription>
+            </DialogHeader>
+            <CreateLocationForm
+              defaultOrganization={params.organization}
+              formId="create-location-form"
+              onSubmit={(values) => {
+                if (!session?.user?.id) {
+                  toast.error("You must be logged in to create a location");
+                  return;
+                }
+
+                toast.promise(createLocationMutation.mutateAsync(values), {
+                  loading: "Creating location...",
+                  success: "Location created successfully!",
+                  error: "Failed to create location",
+                });
+              }}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button form="create-location-form" type="submit">
+                Create
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ),
+    },
   ];
 
   return (
@@ -244,12 +293,11 @@ function RootComponent() {
                     if (org) {
                       navigate({ to: `/${org}` });
                     } else {
-                      return
+                      return;
                     }
                   }}
-
                   // placeholder="Organization"
-                  className="w-32 h-9"
+                  className="min-w-32 h-9 "
                 />
                 <span className="text-muted-foreground text-sm">/</span>
                 <LocationPicker
@@ -262,9 +310,7 @@ function RootComponent() {
                       navigate({ to: `/${selectedOrganization}` });
                     }
                   }}
-                  // handleCreateNew={() => }
-                  // placeholder="Location"
-                  className="w-32 h-9"
+                  className="min-w-32 h-9 "
                   disabled={!selectedOrganization}
                 />
               </div>

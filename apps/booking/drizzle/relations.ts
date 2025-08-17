@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { organizations, userOrganizations, usersInAuth, userInvites, locations, userLocations } from "./schema";
+import { organizations, userOrganizations, usersInAuth, locations, userInvites, userLocations } from "./schema";
 
 export const userOrganizationsRelations = relations(userOrganizations, ({one}) => ({
 	organization: one(organizations, {
@@ -14,8 +14,8 @@ export const userOrganizationsRelations = relations(userOrganizations, ({one}) =
 
 export const organizationsRelations = relations(organizations, ({many}) => ({
 	userOrganizations: many(userOrganizations),
-	userInvites: many(userInvites),
 	locations: many(locations),
+	userInvites: many(userInvites),
 }));
 
 export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
@@ -24,28 +24,23 @@ export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
 	userLocations: many(userLocations),
 }));
 
-export const userInvitesRelations = relations(userInvites, ({one}) => ({
-	usersInAuth: one(usersInAuth, {
-		fields: [userInvites.createdBy],
-		references: [usersInAuth.id]
-	}),
-	location: one(locations, {
-		fields: [userInvites.locationId],
-		references: [locations.id]
-	}),
-	organization: one(organizations, {
-		fields: [userInvites.organizationId],
-		references: [organizations.id]
-	}),
-}));
-
 export const locationsRelations = relations(locations, ({one, many}) => ({
-	userInvites: many(userInvites),
 	organization: one(organizations, {
 		fields: [locations.organizationId],
 		references: [organizations.id]
 	}),
 	userLocations: many(userLocations),
+}));
+
+export const userInvitesRelations = relations(userInvites, ({one}) => ({
+	usersInAuth: one(usersInAuth, {
+		fields: [userInvites.createdBy],
+		references: [usersInAuth.id]
+	}),
+	organization: one(organizations, {
+		fields: [userInvites.organizationId],
+		references: [organizations.id]
+	}),
 }));
 
 export const userLocationsRelations = relations(userLocations, ({one}) => ({

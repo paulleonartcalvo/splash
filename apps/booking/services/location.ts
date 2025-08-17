@@ -31,7 +31,7 @@ export class LocationService {
     return userLocs;
   }
 
-  async getLocationById(userId: string, locationId: number) {
+  async getLocationById(userId: string, locationId: string) {
     const [result] = await this.db
       .select({
         id: locations.id,

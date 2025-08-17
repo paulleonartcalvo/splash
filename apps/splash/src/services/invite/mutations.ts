@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 export interface CreateInviteRequest {
   email: string;
   organizationId: string;
-  locationId: number;
+  locationId: string;
 }
 
 export interface CreateInviteSuccessResponse {
@@ -15,7 +15,7 @@ export interface CreateInviteSuccessResponse {
     createdBy: string;
     invitedUserEmail: string;
     organizationId: string;
-    locationId: number;
+    locationId: string;
   };
 }
 
@@ -49,13 +49,13 @@ export const useCreateInviteMutation = () => {
 export interface AcceptInviteResponse {
   data: {
     organizationId: string;
-    locationId: number;
+    locationId: string;
   };
 }
 
 export const useAcceptInviteMutation = () => {
   return useMutation({
-    mutationFn: (inviteId: number) =>
+    mutationFn: (inviteId: string) =>
       createRequest<AcceptInviteResponse>(
         `${import.meta.env["VITE_BOOKING_API_URL"]}/invites/${inviteId}/accept`,
         {

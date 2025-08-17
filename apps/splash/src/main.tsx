@@ -30,6 +30,7 @@ export const router = createRouter({
   routeTree,
   context: {
     session: null,
+    loading: true,
   },
 });
 
@@ -41,14 +42,14 @@ declare module "@tanstack/react-router" {
 }
 
 function App({ context, ...restProps }: RouterProps<typeof router>) {
-  const { session } = useAuth();
+  const { session, loading } = useAuth();
 
   const theme = useTheme();
 
   return (
     <>
       <Toaster theme={theme.theme} position="bottom-right" />
-      <RouterProvider {...restProps} context={{ session }} />
+      <RouterProvider {...restProps} context={{ session, loading }} />
     </>
   );
 }

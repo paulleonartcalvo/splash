@@ -187,7 +187,7 @@ export function InviteUserForm({
                     data={
                       locationsResult.data?.data.map((d) => ({
                         label: d.name,
-                        value: d.id.toString(),
+                        value: d.id,
                       })) ?? []
                     }
                   >
@@ -199,7 +199,7 @@ export function InviteUserForm({
                         {locationsResult.data?.data.map((location) => (
                           <ComboboxItem
                             key={location.id}
-                            value={location.id.toString()}
+                            value={location.id}
                           >
                             {location.name}
                           </ComboboxItem>

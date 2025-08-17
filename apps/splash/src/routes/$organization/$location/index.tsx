@@ -1,13 +1,16 @@
+import { LoadingMessage } from "@/components/LoadingMessage";
 import { queryClient } from "@/main";
 import { getLocationByIdQueryOptions } from "@/services/location/queries";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$organization/$location/")({
   component: RouteComponent,
+  pendingMs: 0,
+  pendingComponent: () => <LoadingMessage message="Loading location data..." />,
   loader: async ({ context, params }) => {
     try {
       const locationData = await queryClient.ensureQueryData(
-        getLocationByIdQueryOptions({ locationId: parseInt(params.location) })
+        getLocationByIdQueryOptions({ locationId: params.location })
       );
       
       return { 

@@ -13,11 +13,13 @@ import {
 type OrganizationPickerProps = {
   onChange?: (organization: string) => void;
   value: string;
+  className?: string;
   //   defaultValue?: string
-} & Omit<ComboboxProps, "onValueChange" | "value" | "defaultValue" | "multiple" | "data" | "type">;
+} & Omit<ComboboxProps, "onValueChange" | "value" | "defaultValue" | "multiple" | "data" | "type" | "className">;
 export function OrganizationPicker({
   onChange,
   value,
+  className,
   ...comboboxProps
 }: OrganizationPickerProps) {
   const organizationsResult = OrganizationService.useGetUserOrganizationsQuery();
@@ -35,7 +37,7 @@ export function OrganizationPicker({
         })) ?? []
       }
     >
-      <ComboboxTrigger />
+      <ComboboxTrigger className={className} />
       <ComboboxContent>
         <ComboboxInput />
         <ComboboxList>

@@ -3,7 +3,7 @@ import type { SkipToken } from "@tanstack/react-query";
 import { skipToken, useQuery } from "@tanstack/react-query";
 
 export interface Location {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   address: string;
@@ -55,7 +55,7 @@ export interface GetLocationByIdErrorResponse {
 }
 
 export interface GetLocationByIdArgs {
-  locationId: number;
+  locationId: string;
 }
 
 export const getLocationByIdQueryOptions = (args: GetLocationByIdArgs | SkipToken) =>

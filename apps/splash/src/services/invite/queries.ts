@@ -8,7 +8,7 @@ export interface UserInvite {
   organizationId: string;
   organizationName: string;
   organizationSlug: string;
-  locationId: number;
+  locationId: string;
   locationName: string;
   locationSlug: string;
 }

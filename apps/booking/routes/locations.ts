@@ -20,7 +20,7 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           "2xx": Type.Object({
             data: Type.Array(
               Type.Object({
-                id: Type.Number(),
+                id: Type.String(),
                 name: Type.String(),
                 slug: Type.String(),
                 address: Type.String(),
@@ -58,12 +58,12 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     {
       schema: {
         params: Type.Object({
-          id: Type.Number(),
+          id: Type.String(),
         }),
         response: {
           "2xx": Type.Object({
             data: Type.Object({
-              id: Type.Number(),
+              id: Type.String(),
               name: Type.String(),
               slug: Type.String(),
               address: Type.String(),
@@ -121,7 +121,7 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         response: {
           "2xx": Type.Object({
             data: Type.Object({
-              id: Type.Number(),
+              id: Type.String(),
               name: Type.String(),
               slug: Type.String(),
               address: Type.String(),

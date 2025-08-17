@@ -1,5 +1,5 @@
-import { eq, and } from 'drizzle-orm';
-import { userInvites, organizations, locations, userOrganizations, userLocations } from "../drizzle/schema";
+import { and, eq } from 'drizzle-orm';
+import { locations, organizations, userInvites, userLocations, userOrganizations } from "../drizzle/schema";
 import type { DrizzleDb } from "../plugins/drizzle";
 
 export class InviteService {
@@ -13,7 +13,7 @@ export class InviteService {
   }: {
     invitedUserEmail: string;
     organizationId: string;
-    locationId: number;
+    locationId: string;
     createdBy: string;
   }) {
     const [invite] = await this.db
