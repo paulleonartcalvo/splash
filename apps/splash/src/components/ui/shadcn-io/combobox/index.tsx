@@ -67,8 +67,9 @@ const ComboboxContext = createContext<ComboboxContextType>({
 export type ComboboxProps = ComponentProps<typeof Popover> & {
   data: ComboboxData[];
   type: string;
-  multiple?: boolean;
   clearable?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 } & (
     | {
         multiple?: false;
@@ -82,15 +83,18 @@ export type ComboboxProps = ComponentProps<typeof Popover> & {
         value?: string[];
         onValueChange?: (value: string[]) => void;
       }
-  ) & {
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-  };
+  );
 
-export const Combobox = ({
+export const Combobox = (props: ComboboxProps) => {
+  if (props.multiple) {
+    return <MultiCombobox {...props} />;
+  }
+  return <SingleCombobox {...props} />;
+};
+
+const SingleCombobox = ({
   data,
   type,
-  multiple = false,
   clearable = false,
   defaultValue,
   value: controlledValue,
@@ -99,9 +103,9 @@ export const Combobox = ({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   ...props
-}: ComboboxProps) => {
+}: ComboboxProps & { multiple?: false }) => {
   const [value, onValueChange] = useControllableState({
-    defaultProp: defaultValue ?? (multiple ? [] : ""),
+    defaultProp: defaultValue ?? "",
     prop: controlledValue,
     onChange: controlledOnValueChange,
   });
@@ -117,10 +121,65 @@ export const Combobox = ({
     <ComboboxContext.Provider
       value={{
         type,
-        multiple,
+        multiple: false,
         clearable,
         value,
-        onValueChange,
+        onValueChange: (newValue: string | string[]) => {
+          if (typeof newValue === 'string') {
+            onValueChange(newValue);
+          }
+        },
+        open,
+        onOpenChange,
+        data,
+        width,
+        setWidth,
+        inputValue,
+        setInputValue,
+      }}
+    >
+      <Popover {...props} onOpenChange={onOpenChange} open={open} />
+    </ComboboxContext.Provider>
+  );
+};
+
+const MultiCombobox = ({
+  data,
+  type,
+  clearable = false,
+  defaultValue,
+  value: controlledValue,
+  onValueChange: controlledOnValueChange,
+  defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  ...props
+}: ComboboxProps & { multiple: true }) => {
+  const [value, onValueChange] = useControllableState({
+    defaultProp: defaultValue ?? [],
+    prop: controlledValue,
+    onChange: controlledOnValueChange,
+  });
+  const [open, onOpenChange] = useControllableState({
+    defaultProp: defaultOpen,
+    prop: controlledOpen,
+    onChange: controlledOnOpenChange,
+  });
+  const [width, setWidth] = useState(200);
+  const [inputValue, setInputValue] = useState("");
+
+  return (
+    <ComboboxContext.Provider
+      value={{
+        type,
+        multiple: true,
+        clearable,
+        value,
+        onValueChange: (newValue: string | string[]) => {
+          if (Array.isArray(newValue)) {
+            onValueChange(newValue);
+          }
+        },
         open,
         onOpenChange,
         data,

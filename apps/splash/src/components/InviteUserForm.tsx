@@ -5,42 +5,41 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@tanstack/react-query";
 import { useCallback } from "react";
 import {
-    useForm,
-    type SubmitErrorHandler,
-    type SubmitHandler,
+  useForm,
+  type SubmitErrorHandler,
+  type SubmitHandler,
 } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
 import {
-    Combobox,
-    ComboboxContent,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-    ComboboxTrigger,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
 } from "./ui/shadcn-io/combobox";
 
 const InviteUserFormSchema = z.object({
-  email: z.email(),
-  organizationId: z.string(),
+  email: z.email().min(1),
+  organizationId: z.string().min(1),
   location: z.string().array().min(1),
-  role: z.string().min(1).pipe(z.coerce.number()),
+  role: z.string().min(1),
 });
 
 type InviteUserFormType = z.infer<typeof InviteUserFormSchema>;
 type Input = z.input<typeof InviteUserFormSchema>;
 type Output = z.output<typeof InviteUserFormSchema>;
-
 
 // type Output = z.input<typeof InviteUserFormSchema>
 // type InviteUserFormType<IsInput extends boolean = false> = IsInput extends true
@@ -78,9 +77,11 @@ export function InviteUserForm({
       email: "",
       organizationId: organization ?? "",
       location: location ? [location] : [],
-      role: ""
+      role: "",
     },
-    resolver: zodResolver<Input | Output, unknown, Output>(InviteUserFormSchema),
+    resolver: zodResolver<Input | Output, unknown, Output>(
+      InviteUserFormSchema
+    ),
   });
 
   const organizationsResult = OrganizationService.useGetUserOrganizationsQuery(
@@ -144,6 +145,7 @@ export function InviteUserForm({
                     onValueChange={(value) => {
                       console.log(value);
                       field.onChange(value);
+                      form.setValue("location", [])
                     }}
                     data={
                       organizationsResult.data?.data.map((d) => ({
@@ -175,7 +177,7 @@ export function InviteUserForm({
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Invite to locations</FormLabel>
+                <FormLabel>Locations</FormLabel>
                 <FormControl>
                   <Combobox
                     type="location"
@@ -216,14 +218,15 @@ export function InviteUserForm({
             name="role"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Invite to locations</FormLabel>
+                <FormLabel>Role</FormLabel>
                 <FormControl>
                   <Combobox
-                    type="role"
+                  
+                    type="user's role"
                     value={field.value.toString()}
                     onValueChange={(v) => {
-                        console.log(v);
-                        field.onChange(v)
+                      console.log(v);
+                      field.onChange(v);
                     }}
                     data={
                       rolesResult.data?.data.map((d) => ({
