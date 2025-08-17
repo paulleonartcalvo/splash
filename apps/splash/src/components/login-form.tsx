@@ -72,7 +72,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmitValid, onSubmitInValid)}>
-            <Form {...form} >
+            <Form {...form}>
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <FormField
@@ -82,7 +82,13 @@ export function LoginForm({
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="you@gmail.com" {...field} />
+                          <Input
+                            placeholder="you@gmail.com"
+                            {...field}
+                            onClick={() => {
+                              mutation.reset();
+                            }}
+                          />
                         </FormControl>
                         {/* <FormDescription>
                         This is your public display name.
@@ -99,7 +105,9 @@ export function LoginForm({
                   disabled={mutation.isPending}
                 >
                   {mutation.isPending && <Spinner />}
-                  Login with email code
+                  {mutation.data?.success
+                    ? "Email code sent!"
+                    : "Login with email code"}
                 </Button>
               </div>
             </Form>

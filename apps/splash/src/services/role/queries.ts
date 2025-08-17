@@ -8,25 +8,25 @@ export interface Role {
   description: string;
 }
 
-interface GetRolesSuccessResponse {
+export interface GetRolesSuccessResponse {
   data: Role[];
 }
 
-interface GetRolesErrorResponse {
+export interface GetRolesErrorResponse {
   error: string;
 }
 
-interface GetRoleSuccessResponse {
+export interface GetRoleSuccessResponse {
   data: Role;
 }
 
-interface GetRoleErrorResponse {
+export interface GetRoleErrorResponse {
   error: string;
 }
 
-type GetRoleResponse = GetRoleSuccessResponse | GetRoleErrorResponse;
+export type GetRoleResponse = GetRoleSuccessResponse | GetRoleErrorResponse;
 
-interface GetRolesArgs {}
+export interface GetRolesArgs {}
 
 export const useGetRolesQuery = (args: GetRolesArgs | SkipToken = {}) => {
   return useQuery({
@@ -41,7 +41,7 @@ export const useGetRolesQuery = (args: GetRolesArgs | SkipToken = {}) => {
   });
 };
 
-interface GetRoleArgs {
+export interface GetRoleArgs {
   roleId: string;
 }
 

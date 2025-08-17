@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { organizations, userOrganizations } from "../drizzle/schema";
 import type { DrizzleDb } from "../plugins/drizzle";
 
@@ -23,6 +23,32 @@ export class OrganizationService {
       .where(eq(userOrganizations.userId, userId));
 
     return userOrgs;
+  }
+
+  async getOrganizationById(userId: string, organizationId: string) {
+    const [result] = await this.db
+      .select({
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+        role: userOrganizations.role,
+        createdAt: organizations.createdAt,
+        updatedAt: organizations.updatedAt,
+      })
+      .from(organizations)
+      .innerJoin(
+        userOrganizations,
+        eq(organizations.id, userOrganizations.organizationId)
+      )
+      .where(
+        and(
+          eq(organizations.id, organizationId),
+          eq(userOrganizations.userId, userId)
+        )
+      )
+      .limit(1);
+
+    return result || null;
   }
 
   async createOrganization({

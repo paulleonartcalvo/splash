@@ -31,6 +31,31 @@ export class LocationService {
     return userLocs;
   }
 
+  async getLocationById(userId: string, locationId: number) {
+    const [result] = await this.db
+      .select({
+        id: locations.id,
+        name: locations.name,
+        slug: locations.slug,
+        address: locations.address,
+        timezone: locations.timezone,
+        organizationId: locations.organizationId,
+        createdAt: locations.createdAt,
+        updatedAt: locations.updatedAt,
+      })
+      .from(locations)
+      .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
+      .where(
+        and(
+          eq(locations.id, locationId),
+          eq(userLocations.userId, userId)
+        )
+      )
+      .limit(1);
+
+    return result || null;
+  }
+
   // Keep the original method for backward compatibility
   async getUserLocations(userId: string, organizationId?: string) {
     return this.getLocations(userId, organizationId);

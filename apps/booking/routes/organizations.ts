@@ -43,6 +43,58 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
     }
   );
 
+  // GET /organizations/:id - Get organization by ID
+  fastify.get(
+    "/:id",
+    {
+      schema: {
+        params: Type.Object({
+          id: Type.String(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              id: Type.String(),
+              name: Type.String(),
+              slug: Type.String(),
+              role: Type.String(),
+              createdAt: Type.String(),
+              updatedAt: Type.String(),
+            }),
+          }),
+          "404": Type.Object({
+            error: Type.String(),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = request.getDecorator<User>("user");
+      const { id } = request.params;
+
+      try {
+        const organization = await organizationService.getOrganizationById(user.id, id);
+
+        if (!organization) {
+          return reply.status(404).send({
+            error: "Organization not found or you don't have access to it",
+          });
+        }
+
+        reply.send({
+          data: organization,
+        });
+      } catch (error) {
+        reply.status(500).send({
+          error: error instanceof Error ? error.message : "Failed to get organization",
+        });
+      }
+    }
+  );
+
   // POST /organizations - Create a new organization
   fastify.post(
     "/",

@@ -18,10 +18,7 @@ export const useGetUserInvitesQuery = () => {
     queryKey: ["invites", "user"],
     queryFn: () =>
       createRequest<{ data: UserInvite[] }>(
-        `${import.meta.env["VITE_BOOKING_API_URL"]}/invites`,
-        {
-          method: "GET",
-        }
+        `${import.meta.env["VITE_BOOKING_API_URL"]}/invites`
       ),
     select: (data) => data.data,
   });

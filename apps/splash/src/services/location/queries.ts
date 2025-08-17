@@ -1,6 +1,6 @@
-import { createRequest } from "@/lib/api";
-import { useQuery, skipToken } from "@tanstack/react-query";
+import { queryOptions } from "@/lib/queryOptions";
 import type { SkipToken } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 
 export interface Location {
   id: number;
@@ -13,29 +13,64 @@ export interface Location {
   updatedAt: string;
 }
 
-interface GetLocationsSuccessResponse {
+export interface GetLocationsSuccessResponse {
   data: Location[];
 }
 
-interface GetLocationsErrorResponse {
+export interface GetLocationsErrorResponse {
   error: string;
 }
 
-interface GetLocationsArgs {
+export interface GetLocationsArgs {
   organizationId?: string;
 }
 
-export const useGetLocationsQuery = (args: GetLocationsArgs | SkipToken) => {
-  return useQuery({
-    queryKey: ["locations", args === skipToken ? undefined : args.organizationId],
-    queryFn: args === skipToken ? skipToken : () => {
-      const params = new URLSearchParams();
-      if (args.organizationId) {
-        params.append("organization_id", args.organizationId);
-      }
-      const queryString = params.toString();
-      const url = `${import.meta.env["VITE_BOOKING_API_URL"]}/locations${queryString ? `?${queryString}` : ""}`;
-      return createRequest<GetLocationsSuccessResponse>(url);
-    },
+export const getLocationsQueryOptions = (args: GetLocationsArgs | SkipToken) => {
+  const searchParams: Record<string, string> = {};
+  if (args !== skipToken && args.organizationId) {
+    searchParams.organization_id = args.organizationId;
+  }
+
+  return queryOptions<GetLocationsSuccessResponse, GetLocationsArgs>({
+    queryKey: [
+      "locations",
+      args === skipToken ? undefined : args.organizationId,
+    ],
+    url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/locations`,
+    args,
+    searchParams: args === skipToken ? undefined : searchParams,
   });
+};
+
+export const useGetLocationsQuery = (args: GetLocationsArgs | SkipToken) => {
+  return useQuery(getLocationsQueryOptions(args));
+};
+
+export interface GetLocationByIdSuccessResponse {
+  data: Location;
+}
+
+export interface GetLocationByIdErrorResponse {
+  error: string;
+}
+
+export interface GetLocationByIdArgs {
+  locationId: number;
+}
+
+export const getLocationByIdQueryOptions = (args: GetLocationByIdArgs | SkipToken) =>
+  queryOptions<GetLocationByIdSuccessResponse, GetLocationByIdArgs>({
+    queryKey: [
+      "locations",
+      "single",
+      args === skipToken ? undefined : args.locationId,
+    ],
+    url: (args) => `${import.meta.env["VITE_BOOKING_API_URL"]}/locations/${args.locationId}`,
+    args,
+  });
+
+export const useGetLocationByIdQuery = (
+  args: GetLocationByIdArgs | SkipToken
+) => {
+  return useQuery(getLocationByIdQueryOptions(args));
 };

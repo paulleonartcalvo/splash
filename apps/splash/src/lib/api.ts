@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
 export interface ApiError {
   error: string;
@@ -13,9 +13,14 @@ export class ApiRequestError extends Error implements ApiError {
   statusCode: number;
   details?: any;
 
-  constructor(error: string, statusCode: number, message?: string, details?: any) {
+  constructor(
+    error: string,
+    statusCode: number,
+    message?: string,
+    details?: any
+  ) {
     super(message || error);
-    this.name = 'ApiRequestError';
+    this.name = "ApiRequestError";
     this.error = error;
     this.message = message || error;
     this.statusCode = statusCode;
@@ -23,28 +28,50 @@ export class ApiRequestError extends Error implements ApiError {
   }
 }
 
-export const createRequest = async <T = any>(url: string, options?: RequestInit): Promise<T> => {
-  // Get current session token
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  const headers: Record<string, string> = {
-    ...(options?.headers as Record<string, string>),
+export const createRequest = async <T = any>(
+  url: string,
+  options?: RequestInit & {
+    searchParams?: URLSearchParams | Record<string, string>;
+    token?: string;
+  }
+): Promise<T> => {
+  // Get current session token if not provided
+  const token = options?.token ?? (await supabase.auth.getSession()).data.session?.access_token;
+
+  // Handle search params
+  let finalUrl = url;
+  if (options?.searchParams) {
+    const searchParams =
+      options.searchParams instanceof URLSearchParams
+        ? options.searchParams
+        : new URLSearchParams(options.searchParams);
+
+    const queryString = searchParams.toString();
+    if (queryString) {
+      finalUrl = `${url}${url.includes("?") ? "&" : "?"}${queryString}`;
+    }
   }
 
+  const { searchParams, token: providedToken, ...requestOptions } = options || {};
+
+  const headers: Record<string, string> = {
+    ...(requestOptions?.headers as Record<string, string>),
+  };
+
   // Only add Content-Type if there's a body
-  if (options?.body) {
-    headers['Content-Type'] = 'application/json';
+  if (requestOptions?.body) {
+    headers["Content-Type"] = "application/json";
   }
 
   // Add Authorization header if user is authenticated
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(finalUrl, {
     headers,
-    ...options,
-  })
+    ...requestOptions,
+  });
 
   if (!response.ok) {
     let errorData: any;
@@ -63,5 +90,5 @@ export const createRequest = async <T = any>(url: string, options?: RequestInit)
     );
   }
 
-  return response.json()
-}
+  return response.json();
+};

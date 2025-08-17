@@ -2,19 +2,19 @@ import { convertToSlug } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import {
-    useForm,
-    type SubmitErrorHandler,
-    type SubmitHandler,
+  useForm,
+  type SubmitErrorHandler,
+  type SubmitHandler,
 } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
 
@@ -79,7 +79,9 @@ export function CreateOrganizationForm({
                       field.onChange(e);
                       const slugState = form.getFieldState("slug");
                       if (!slugState.isDirty) {
-                        form.setValue("slug", convertToSlug(e.target.value));
+                        form.setValue("slug", convertToSlug(e.target.value), {
+                          shouldValidate: true,
+                        });
                       }
                     }}
                   />

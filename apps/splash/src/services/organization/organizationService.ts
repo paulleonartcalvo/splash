@@ -1,7 +1,8 @@
 import { useCreateOrganizationMutation } from "./mutations";
-import { useGetUserOrganizationsQuery } from "./queries";
+import { useGetUserOrganizationsQuery, useGetOrganizationByIdQuery } from "./queries";
 
 export const OrganizationService = {
   useCreateOrganizationMutation,
   useGetUserOrganizationsQuery,
+  useGetOrganizationByIdQuery,
 };

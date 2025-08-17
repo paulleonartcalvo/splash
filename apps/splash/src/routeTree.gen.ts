@@ -9,10 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrganizationRouteRouteImport } from './routes/$organization/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as SessionsOrganizationLocationIndexRouteImport } from './routes/sessions/$organization/$location/index'
+import { Route as OrganizationIndexRouteImport } from './routes/$organization/index'
+import { Route as OrganizationLocationIndexRouteImport } from './routes/$organization/$location/index'
+import { Route as OrganizationLocationSessionsRouteImport } from './routes/$organization/$location/sessions'
 
+const OrganizationRouteRoute = OrganizationRouteRouteImport.update({
+  id: '/$organization',
+  path: '/$organization',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -23,45 +31,89 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SessionsOrganizationLocationIndexRoute =
-  SessionsOrganizationLocationIndexRouteImport.update({
-    id: '/sessions/$organization/$location/',
-    path: '/sessions/$organization/$location/',
-    getParentRoute: () => rootRouteImport,
+const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationLocationIndexRoute =
+  OrganizationLocationIndexRouteImport.update({
+    id: '/$location/',
+    path: '/$location/',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
+const OrganizationLocationSessionsRoute =
+  OrganizationLocationSessionsRouteImport.update({
+    id: '/$location/sessions',
+    path: '/$location/sessions',
+    getParentRoute: () => OrganizationRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$organization': typeof OrganizationRouteRouteWithChildren
+  '/$organization/': typeof OrganizationIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
+  '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
+  '/$organization/$location': typeof OrganizationLocationIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$organization': typeof OrganizationIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/sessions/$organization/$location': typeof SessionsOrganizationLocationIndexRoute
+  '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
+  '/$organization/$location': typeof OrganizationLocationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$organization': typeof OrganizationRouteRouteWithChildren
+  '/$organization/': typeof OrganizationIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/sessions/$organization/$location/': typeof SessionsOrganizationLocationIndexRoute
+  '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
+  '/$organization/$location/': typeof OrganizationLocationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/sessions/$organization/$location'
+  fullPaths:
+    | '/'
+    | '/$organization'
+    | '/$organization/'
+    | '/dashboard'
+    | '/$organization/$location/sessions'
+    | '/$organization/$location'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/sessions/$organization/$location'
-  id: '__root__' | '/' | '/dashboard/' | '/sessions/$organization/$location/'
+  to:
+    | '/'
+    | '/$organization'
+    | '/dashboard'
+    | '/$organization/$location/sessions'
+    | '/$organization/$location'
+  id:
+    | '__root__'
+    | '/'
+    | '/$organization'
+    | '/$organization/'
+    | '/dashboard/'
+    | '/$organization/$location/sessions'
+    | '/$organization/$location/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OrganizationRouteRoute: typeof OrganizationRouteRouteWithChildren
   DashboardIndexRoute: typeof DashboardIndexRoute
-  SessionsOrganizationLocationIndexRoute: typeof SessionsOrganizationLocationIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/$organization': {
+      id: '/$organization'
+      path: '/$organization'
+      fullPath: '/$organization'
+      preLoaderRoute: typeof OrganizationRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -76,21 +128,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sessions/$organization/$location/': {
-      id: '/sessions/$organization/$location/'
-      path: '/sessions/$organization/$location'
-      fullPath: '/sessions/$organization/$location'
-      preLoaderRoute: typeof SessionsOrganizationLocationIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/$organization/': {
+      id: '/$organization/'
+      path: '/'
+      fullPath: '/$organization/'
+      preLoaderRoute: typeof OrganizationIndexRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/$location/': {
+      id: '/$organization/$location/'
+      path: '/$location'
+      fullPath: '/$organization/$location'
+      preLoaderRoute: typeof OrganizationLocationIndexRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/$location/sessions': {
+      id: '/$organization/$location/sessions'
+      path: '/$location/sessions'
+      fullPath: '/$organization/$location/sessions'
+      preLoaderRoute: typeof OrganizationLocationSessionsRouteImport
+      parentRoute: typeof OrganizationRouteRoute
     }
   }
 }
 
+interface OrganizationRouteRouteChildren {
+  OrganizationIndexRoute: typeof OrganizationIndexRoute
+  OrganizationLocationSessionsRoute: typeof OrganizationLocationSessionsRoute
+  OrganizationLocationIndexRoute: typeof OrganizationLocationIndexRoute
+}
+
+const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
+  OrganizationIndexRoute: OrganizationIndexRoute,
+  OrganizationLocationSessionsRoute: OrganizationLocationSessionsRoute,
+  OrganizationLocationIndexRoute: OrganizationLocationIndexRoute,
+}
+
+const OrganizationRouteRouteWithChildren =
+  OrganizationRouteRoute._addFileChildren(OrganizationRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OrganizationRouteRoute: OrganizationRouteRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
-  SessionsOrganizationLocationIndexRoute:
-    SessionsOrganizationLocationIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

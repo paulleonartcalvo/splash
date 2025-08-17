@@ -1,5 +1,7 @@
 import { CreateOrganizationForm } from "@/components/CreateOrganizationForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
+import { LocationPicker } from "@/components/LocationPicker";
+import { OrganizationPicker } from "@/components/OrganizationPicker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +29,10 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
+  useNavigate,
+  useParams,
 } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Splash from "../assets/splash.svg?react";
 
@@ -48,6 +53,21 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 
 function RootComponent() {
   const { session, signOut } = useAuth();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
+  
+  // Extract organization and location from route parameters
+  const urlOrganization = params.organization || "";
+  const urlLocation = params.location || "";
+  
+  const [selectedOrganization, setSelectedOrganization] = useState<string>(urlOrganization);
+  const [selectedLocation, setSelectedLocation] = useState<string>(urlLocation);
+  
+  // Update state when URL changes
+  useEffect(() => {
+    setSelectedOrganization(urlOrganization);
+    setSelectedLocation(urlLocation);
+  }, [urlOrganization, urlLocation]);
 
   const inviteMutation = InviteService.useCreateInviteMutation();
 
@@ -215,6 +235,41 @@ function RootComponent() {
               signOut();
             }
           }}
+          rightSideContent={
+            session && (
+              <div className="flex items-center gap-2">
+                <OrganizationPicker
+                  value={selectedOrganization}
+                  onChange={(org) => {
+                    if (org) {
+                      navigate({ to: `/${org}` });
+                    } else {
+                      return
+                    }
+                  }}
+                  type="organization"
+                  // placeholder="Organization"
+                  className="w-32 h-9"
+                />
+                <span className="text-muted-foreground text-sm">/</span>
+                <LocationPicker
+                  organizationId={selectedOrganization || undefined}
+                  value={selectedLocation}
+                  onChange={(loc) => {
+                    if (loc && selectedOrganization) {
+                      navigate({ to: `/${selectedOrganization}/${loc}` });
+                    } else if (selectedOrganization) {
+                      navigate({ to: `/${selectedOrganization}` });
+                    }
+                  }}
+                  type="location"
+                  // placeholder="Location"
+                  className="w-32 h-9"
+                  disabled={!selectedOrganization}
+                />
+              </div>
+            )
+          }
         />
 
         <div className="flex-1 w-full">

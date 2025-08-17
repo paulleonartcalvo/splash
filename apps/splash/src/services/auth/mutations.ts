@@ -1,11 +1,11 @@
 import { createRequest } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 
-interface LoginRequest {
+export interface LoginRequest {
   email: string;
 }
 
-interface LoginSuccessResponse {
+export interface LoginSuccessResponse {
   success: true;
   message: string;
   data: {
@@ -13,12 +13,12 @@ interface LoginSuccessResponse {
   };
 }
 
-interface LoginErrorResponse {
+export interface LoginErrorResponse {
   success: false;
   error: string;
 }
 
-type LoginResponse = LoginSuccessResponse | LoginErrorResponse;
+export type LoginResponse = LoginSuccessResponse | LoginErrorResponse;
 // UseMutationResult<LoginResponse>
 export const useLoginMutation = () => {
   return useMutation({

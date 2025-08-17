@@ -2,13 +2,13 @@ import { createRequest } from "@/lib/api";
 import { queryClient } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 
-interface CreateOrganizationRequest {
+export interface CreateOrganizationRequest {
   name: string;
   slug: string;
   createdBy: string;
 }
 
-interface CreateOrganizationSuccessResponse {
+export interface CreateOrganizationSuccessResponse {
   data: {
     id: string;
     name: string;
@@ -18,11 +18,11 @@ interface CreateOrganizationSuccessResponse {
   };
 }
 
-interface CreateOrganizationErrorResponse {
+export interface CreateOrganizationErrorResponse {
   error: string;
 }
 
-type CreateOrganizationResponse =
+export type CreateOrganizationResponse =
   | CreateOrganizationSuccessResponse
   | CreateOrganizationErrorResponse;
 

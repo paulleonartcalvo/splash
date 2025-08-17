@@ -318,6 +318,7 @@ export interface Navbar05Props extends React.HTMLAttributes<HTMLElement> {
   onReadNotification?: (notification: NotificationItem) => void;
   onUserItemClick?: (item: string) => void;
   userMenuItems?: UserMenuItem[];
+  rightSideContent?: React.ReactNode;
 }
 
 // Default navigation links
@@ -346,6 +347,7 @@ export const Navbar05 = React.forwardRef<HTMLElement, Navbar05Props>(
       onReadNotification,
       onUserItemClick,
       userMenuItems = [],
+      rightSideContent,
       ...props
     },
     ref
@@ -469,6 +471,7 @@ export const Navbar05 = React.forwardRef<HTMLElement, Navbar05Props>(
           </div>
           {/* Right side */}
           <div className="flex items-center gap-4">
+            {rightSideContent}
             <div className="flex items-center gap-2">
               {/* Info menu */}
               <InfoMenu onItemClick={onInfoItemClick} />

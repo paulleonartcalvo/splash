@@ -51,4 +51,58 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
     }
   );
+
+  // GET /locations/:id - Get location by ID
+  fastify.get(
+    "/:id",
+    {
+      schema: {
+        params: Type.Object({
+          id: Type.Number(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              id: Type.Number(),
+              name: Type.String(),
+              slug: Type.String(),
+              address: Type.String(),
+              timezone: Type.String(),
+              organizationId: Type.String(),
+              createdAt: Type.String(),
+              updatedAt: Type.String(),
+            }),
+          }),
+          "404": Type.Object({
+            error: Type.String(),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = request.getDecorator<User>("user");
+      const { id } = request.params;
+
+      try {
+        const location = await locationService.getLocationById(user.id, id);
+
+        if (!location) {
+          return reply.status(404).send({
+            error: "Location not found or you don't have access to it",
+          });
+        }
+
+        reply.send({
+          data: location,
+        });
+      } catch (error) {
+        reply.status(500).send({
+          error: error instanceof Error ? error.message : "Failed to get location",
+        });
+      }
+    }
+  );
 };

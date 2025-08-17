@@ -2,13 +2,13 @@ import { createRequest } from "@/lib/api";
 import { queryClient } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 
-interface CreateInviteRequest {
+export interface CreateInviteRequest {
   email: string;
   organizationId: string;
   locationId: number;
 }
 
-interface CreateInviteSuccessResponse {
+export interface CreateInviteSuccessResponse {
   data: {
     id: number;
     createdAt: string;
@@ -19,11 +19,11 @@ interface CreateInviteSuccessResponse {
   };
 }
 
-interface CreateInviteErrorResponse {
+export interface CreateInviteErrorResponse {
   error: string;
 }
 
-type CreateInviteResponse =
+export type CreateInviteResponse =
   | CreateInviteSuccessResponse
   | CreateInviteErrorResponse;
 
@@ -46,7 +46,7 @@ export const useCreateInviteMutation = () => {
   });
 };
 
-interface AcceptInviteResponse {
+export interface AcceptInviteResponse {
   data: {
     organizationId: string;
     locationId: number;
@@ -73,7 +73,7 @@ export const useAcceptInviteMutation = () => {
   });
 };
 
-interface RejectInviteResponse {
+export interface RejectInviteResponse {
   data: {
     inviteId: number;
   };
