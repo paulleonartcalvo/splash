@@ -32,7 +32,7 @@ const CreateLocationFormSchema = z.object({
   name: z.string().min(1),
   address: z.string().min(1),
   slug: z.string().min(1),
-  timeZone: z.string().min(1),
+  timezone: z.string().min(1),
   organizationId: z.string().min(1),
 });
 
@@ -58,7 +58,7 @@ export function CreateLocationForm({
       slug: "",
       organizationId: defaultOrganization ?? "",
       address: "",
-      timeZone: "",
+      timezone: "",
     },
     resolver: zodResolver(CreateLocationFormSchema),
   });
@@ -155,10 +155,10 @@ export function CreateLocationForm({
           />
           <FormField
             control={form.control}
-            name="timeZone"
+            name="timezone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Timezone</FormLabel>
+                <FormLabel>timezone</FormLabel>
 
                 <FormControl>
                   <Combobox

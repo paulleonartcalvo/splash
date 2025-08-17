@@ -105,4 +105,60 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       }
     }
   );
+
+  // POST /locations - Create a new location
+  fastify.post(
+    "/",
+    {
+      schema: {
+        body: Type.Object({
+          name: Type.String(),
+          slug: Type.String(),
+          address: Type.String(),
+          timezone: Type.String(),
+          organizationId: Type.String(),
+        }),
+        response: {
+          "2xx": Type.Object({
+            data: Type.Object({
+              id: Type.Number(),
+              name: Type.String(),
+              slug: Type.String(),
+              address: Type.String(),
+              timezone: Type.String(),
+              organizationId: Type.String(),
+              createdAt: Type.String(),
+              updatedAt: Type.String(),
+            }),
+          }),
+          default: Type.Object({
+            error: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = request.getDecorator<User>("user");
+      const { name, slug, address, timezone, organizationId } = request.body;
+
+      try {
+        const location = await locationService.createLocation({
+          name,
+          slug,
+          address,
+          timezone,
+          organizationId,
+          createdBy: user.id,
+        });
+
+        reply.send({
+          data: location,
+        });
+      } catch (error) {
+        reply.status(400).send({
+          error: error instanceof Error ? error.message : "Failed to create location",
+        });
+      }
+    }
+  );
 };

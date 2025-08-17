@@ -3,6 +3,7 @@ import { skipToken } from "@tanstack/react-query";
 import {
     Combobox,
     ComboboxContent,
+    ComboboxCreateNew,
     ComboboxEmpty,
     ComboboxInput,
     ComboboxItem,
@@ -15,6 +16,7 @@ type LocationPickerProps = {
   organizationId?: string;
   onChange?: (location: string) => void;
   value: string;
+  handleCreateNew?: () => void;
   //   defaultValue?: string
 } & Omit<
   ComboboxProps,
@@ -24,6 +26,7 @@ export function LocationPicker({
   organizationId,
   onChange,
   value,
+  handleCreateNew,
   ...comboboxProps
 }: LocationPickerProps) {
   const locationsResult = LocationService.useGetLocationsQuery(
@@ -38,6 +41,7 @@ export function LocationPicker({
     <Combobox
       {...comboboxProps}
       value={value}
+      type="location"
       onValueChange={onChange}
       data={
         locationsResult.data?.data.map((item) => ({
@@ -48,6 +52,7 @@ export function LocationPicker({
     >
       <ComboboxTrigger />
       <ComboboxContent>
+        {handleCreateNew && <ComboboxCreateNew onCreateNew={handleCreateNew} />}
         <ComboboxInput />
         <ComboboxList>
           <ComboboxEmpty />

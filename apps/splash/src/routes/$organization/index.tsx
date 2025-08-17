@@ -10,17 +10,23 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { LocationService } from "@/services/location/locationService";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/$organization/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
+  const navigate = useNavigate({
+    from: "/$organization",
+  });
   const { organization, locations } = Route.useRouteContext();
   const params = Route.useParams();
+
+  const createLocationMutation = LocationService.useCreateLocationMutation();
 
   useEffect(() => {
     // If we have locations, redirect to the first one
@@ -51,15 +57,29 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle>Create your first location</CardTitle>
           <CardDescription>
-            This organization has no locations yet! Make one now
+            This organization has no locations yet!
           </CardDescription>
         </CardHeader>
         <CardContent>
           <CreateLocationForm
             formId="create-first-location"
             defaultOrganization={organization.id}
-            onSubmit={() => {
-              console.log("asdfadsf");
+            onSubmit={async (newLocation) => {
+              toast
+                .promise(createLocationMutation.mutateAsync(newLocation), {
+                  success: "Location created",
+                  loading: "Creating location...",
+                  error: "Failed to create location",
+                })
+                .unwrap()
+                .then((v) => {
+                  navigate({
+                    to: "$location",
+                    params: {
+                      location: v.data.id.toString(),
+                    },
+                  });
+                });
             }}
           />
         </CardContent>

@@ -247,7 +247,7 @@ function RootComponent() {
                       return
                     }
                   }}
-                  type="organization"
+
                   // placeholder="Organization"
                   className="w-32 h-9"
                 />
@@ -262,7 +262,7 @@ function RootComponent() {
                       navigate({ to: `/${selectedOrganization}` });
                     }
                   }}
-                  type="location"
+                  // handleCreateNew={() => }
                   // placeholder="Location"
                   className="w-32 h-9"
                   disabled={!selectedOrganization}

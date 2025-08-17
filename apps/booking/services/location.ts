@@ -56,6 +56,48 @@ export class LocationService {
     return result || null;
   }
 
+  async createLocation({
+    name,
+    slug,
+    address,
+    timezone,
+    organizationId,
+    createdBy,
+  }: {
+    name: string;
+    slug: string;
+    address: string;
+    timezone: string;
+    organizationId: string;
+    createdBy: string;
+  }) {
+    return await this.db.transaction(async (tx) => {
+      // 1. Create the location
+      const [location] = await tx
+        .insert(locations)
+        .values({
+          name,
+          slug,
+          address,
+          timezone,
+          organizationId,
+        })
+        .returning();
+
+      if (!location) {
+        throw new Error("Failed to create location");
+      }
+
+      // 2. Add the creating user to the location
+      await tx.insert(userLocations).values({
+        userId: createdBy,
+        locationId: location.id,
+      });
+
+      return location;
+    });
+  }
+
   // Keep the original method for backward compatibility
   async getUserLocations(userId: string, organizationId?: string) {
     return this.getLocations(userId, organizationId);
