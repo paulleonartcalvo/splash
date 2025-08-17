@@ -53,9 +53,8 @@ function RootComponent() {
 
   const invitesResult = InviteService.useGetUserInvitesQuery();
 
-
-  const createOrganizationMutation = OrganizationService.useCreateOrganizationMutation();
-
+  const createOrganizationMutation =
+    OrganizationService.useCreateOrganizationMutation();
 
   // Convert invites to notifications
   const notifications: NotificationItem[] = [
@@ -146,7 +145,9 @@ function RootComponent() {
               formId="create-org-form"
               onSubmit={(values) => {
                 if (!session?.user?.id) {
-                  toast.error("You must be logged in to create an organization");
+                  toast.error(
+                    "You must be logged in to create an organization"
+                  );
                   return;
                 }
 
@@ -182,41 +183,39 @@ function RootComponent() {
     <>
       <HeadContent />
       <Scripts />
-      <div className="flex flex-col gap-4 justify-center items-start h-full w-full p-3">
-        <div className="flex justify-space-between items-center gap-4 w-full">
-          <Navbar05
-            userEmail={session?.user.email}
-            userName={session?.user.email}
-            logo={<Splash className="text-teal-400" height="32px" />}
-            notifications={notifications}
-            navigationLinks={[
-              { href: "/", label: "Home" },
-              { href: "/", label: "Sessions" },
-              { href: "/", label: "My Reservations" },
-              { href: "/", label: "Dashboard" },
-            ]}
-            onNavItemClick={(href) => router.navigate({ to: href })}
-            onNotificationClick={(notification) => {
-              if (notification.href) {
-                router.navigate({ to: notification.href });
-              } else if (notification.onClick) {
-                notification.onClick();
-              }
-            }}
-            onReadNotification={(notification) => {
-              // Mark notification as read
-              console.log("Marking notification as read:", notification.id);
-              // This is where you would typically call an API to mark as read
-              // e.g., markNotificationAsRead(notification.id)
-            }}
-            userMenuItems={userMenuItems}
-            onUserItemClick={(item) => {
-              if (item === "logout") {
-                signOut();
-              }
-            }}
-          />
-        </div>
+      <div className="flex flex-col justify-center items-start h-full w-full">
+        <Navbar05
+          userEmail={session?.user.email}
+          userName={session?.user.email}
+          logo={<Splash className="text-teal-400" height="32px" />}
+          notifications={notifications}
+          navigationLinks={[
+            { href: "/", label: "Home" },
+            { href: "/", label: "Sessions" },
+            { href: "/", label: "My Reservations" },
+            { href: "/", label: "Dashboard" },
+          ]}
+          onNavItemClick={(href) => router.navigate({ to: href })}
+          onNotificationClick={(notification) => {
+            if (notification.href) {
+              router.navigate({ to: notification.href });
+            } else if (notification.onClick) {
+              notification.onClick();
+            }
+          }}
+          onReadNotification={(notification) => {
+            // Mark notification as read
+            console.log("Marking notification as read:", notification.id);
+            // This is where you would typically call an API to mark as read
+            // e.g., markNotificationAsRead(notification.id)
+          }}
+          userMenuItems={userMenuItems}
+          onUserItemClick={(item) => {
+            if (item === "logout") {
+              signOut();
+            }
+          }}
+        />
 
         <div className="flex-1 w-full">
           <Outlet />
