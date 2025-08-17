@@ -252,73 +252,75 @@ function RootComponent() {
     <>
       <HeadContent />
       <Scripts />
-      <div className="flex flex-col justify-center items-start h-full w-full">
-        <Navbar05
-          userEmail={session?.user.email}
-          userName={session?.user.email}
-          logo={<Splash className="text-teal-400" height="32px" />}
-          notifications={notifications}
-          navigationLinks={[
-            { href: "/", label: "Home" },
-            { href: "/", label: "Sessions" },
-            { href: "/", label: "My Reservations" },
-            { href: "/", label: "Dashboard" },
-          ]}
-          onNavItemClick={(href) => router.navigate({ to: href })}
-          onNotificationClick={(notification) => {
-            if (notification.href) {
-              router.navigate({ to: notification.href });
-            } else if (notification.onClick) {
-              notification.onClick();
+      <div className="flex flex-col justify-center items-start h-full w-full overflow-hidden">
+        <div className="w-full">
+          <Navbar05
+            userEmail={session?.user.email}
+            userName={session?.user.email}
+            logo={<Splash className="text-teal-400" height="32px" />}
+            notifications={notifications}
+            navigationLinks={[
+              { href: "/", label: "Home" },
+              { href: "/", label: "Sessions" },
+              { href: "/", label: "My Reservations" },
+              { href: "/", label: "Dashboard" },
+            ]}
+            onNavItemClick={(href) => router.navigate({ to: href })}
+            onNotificationClick={(notification) => {
+              if (notification.href) {
+                router.navigate({ to: notification.href });
+              } else if (notification.onClick) {
+                notification.onClick();
+              }
+            }}
+            onReadNotification={(notification) => {
+              // Mark notification as read
+              console.log("Marking notification as read:", notification.id);
+              // This is where you would typically call an API to mark as read
+              // e.g., markNotificationAsRead(notification.id)
+            }}
+            userMenuItems={userMenuItems}
+            onUserItemClick={(item) => {
+              if (item === "logout") {
+                signOut();
+              }
+            }}
+            rightSideContent={
+              session && (
+                <div className="flex items-center gap-2">
+                  <OrganizationPicker
+                    value={selectedOrganization}
+                    onChange={(org) => {
+                      if (org) {
+                        navigate({ to: `/${org}` });
+                      } else {
+                        return;
+                      }
+                    }}
+                    // placeholder="Organization"
+                    className="min-w-32 h-9 "
+                  />
+                  <span className="text-muted-foreground text-sm">/</span>
+                  <LocationPicker
+                    organizationId={selectedOrganization || undefined}
+                    value={selectedLocation}
+                    onChange={(loc) => {
+                      if (loc && selectedOrganization) {
+                        navigate({ to: `/${selectedOrganization}/${loc}` });
+                      } else if (selectedOrganization) {
+                        navigate({ to: `/${selectedOrganization}` });
+                      }
+                    }}
+                    className="min-w-32 h-9 "
+                    disabled={!selectedOrganization}
+                  />
+                </div>
+              )
             }
-          }}
-          onReadNotification={(notification) => {
-            // Mark notification as read
-            console.log("Marking notification as read:", notification.id);
-            // This is where you would typically call an API to mark as read
-            // e.g., markNotificationAsRead(notification.id)
-          }}
-          userMenuItems={userMenuItems}
-          onUserItemClick={(item) => {
-            if (item === "logout") {
-              signOut();
-            }
-          }}
-          rightSideContent={
-            session && (
-              <div className="flex items-center gap-2">
-                <OrganizationPicker
-                  value={selectedOrganization}
-                  onChange={(org) => {
-                    if (org) {
-                      navigate({ to: `/${org}` });
-                    } else {
-                      return;
-                    }
-                  }}
-                  // placeholder="Organization"
-                  className="min-w-32 h-9 "
-                />
-                <span className="text-muted-foreground text-sm">/</span>
-                <LocationPicker
-                  organizationId={selectedOrganization || undefined}
-                  value={selectedLocation}
-                  onChange={(loc) => {
-                    if (loc && selectedOrganization) {
-                      navigate({ to: `/${selectedOrganization}/${loc}` });
-                    } else if (selectedOrganization) {
-                      navigate({ to: `/${selectedOrganization}` });
-                    }
-                  }}
-                  className="min-w-32 h-9 "
-                  disabled={!selectedOrganization}
-                />
-              </div>
-            )
-          }
-        />
+          />
+        </div>
 
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full overflow-hidden">
           <Outlet />
         </div>
       </div>
