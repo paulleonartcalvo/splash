@@ -1,36 +1,10 @@
-import { formatDateRange } from "little-date";
-import { Button } from "./ui/button";
+import { type CalendarEvent, EventSlot } from "./CalendarEventSlot";
 import {
   MiniCalendar,
   MiniCalendarDay,
   MiniCalendarDays,
   MiniCalendarNavigation,
 } from "./ui/shadcn-io/mini-calendar";
-
-type CalendarEvent = {
-  id: string;
-  name: string;
-  start: string;
-  end: string;
-  repeats: boolean;
-};
-
-type EventSlotProps = {
-  event: CalendarEvent;
-};
-function EventSlot({ event }: EventSlotProps) {
-  return (
-    <div
-      key={event.name}
-      className="bg-muted after:bg-primary/70 relative rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full"
-    >
-      <div className="font-medium">{event.name}</div>
-      <div className="text-muted-foreground text-xs">
-        {formatDateRange(new Date(event.start), new Date(event.end))}
-      </div>
-    </div>
-  );
-}
 
 const testEvents: CalendarEvent[] = [
   {
@@ -39,6 +13,7 @@ const testEvents: CalendarEvent[] = [
     start: "2025-08-18T09:00:00.000Z",
     end: "2025-08-18T14:00:00.000Z",
     repeats: true,
+    maxOccupancy: 150
   },
   {
     id: "2",
@@ -125,9 +100,7 @@ export function SessionsCard({ events = testEvents }: SessionsCardProps) {
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="flex flex-col gap-2">
           {events.map((e, index) => (
-            <Button asChild key={`${e.id}-${index}`}>
-              <EventSlot event={e} />
-            </Button>
+            <EventSlot key={`${e.id}-${index}`} event={e} />
           ))}
         </div>
       </div>

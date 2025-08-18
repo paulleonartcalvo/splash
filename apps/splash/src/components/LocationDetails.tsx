@@ -14,6 +14,7 @@ import {
     TicketIcon,
     TrendingUpIcon,
 } from "lucide-react";
+import { formatDateRange } from "little-date";
 import { SessionsCard } from "./SessionsCard";
 import { Status, StatusIndicator, StatusLabel } from "./ui/shadcn-io/status";
 
@@ -35,10 +36,19 @@ export function LocationDetails({ location }: LocationDetailsProps) {
             <StatusLabel>Open</StatusLabel>
           </Status>
         </div>
-        <p className="text-lg text-muted-foreground flex items-center gap-2">
-          <MapPinIcon className="h-5 w-5" />
-          {location.address}
-        </p>
+        <div className="flex justify-between items-center">
+          <p className="text-lg text-muted-foreground flex items-center gap-2">
+            <MapPinIcon className="h-5 w-5" />
+            {location.address}
+          </p>
+          <div className="text-sm text-muted-foreground flex items-center gap-2">
+            <ClockIcon className="h-4 w-4" />
+            {formatDateRange(
+              new Date("2024-01-01T08:00:00"),
+              new Date("2024-01-01T22:00:00")
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Tiles Grid */}
