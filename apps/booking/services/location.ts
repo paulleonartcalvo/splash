@@ -71,6 +71,8 @@ export class LocationService {
     organizationId: string;
     createdBy: string;
   }) {
+
+
     return await this.db.transaction(async (tx) => {
       // 1. Create the location
       const [location] = await tx

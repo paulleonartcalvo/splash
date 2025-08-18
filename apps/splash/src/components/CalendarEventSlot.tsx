@@ -23,16 +23,21 @@ export function EventSlot({
   onClick,
   ...props
 }: EventSlotProps) {
-  const currOccupancy = 0;
+  const currOccupancy = 150;
+  const isFullyBooked =
+    !!event.maxOccupancy && currOccupancy >= event.maxOccupancy;
 
   return (
     <button
       {...props}
+      disabled={isFullyBooked || !onClick}
       className={cn(
         "after:bg-primary/70 relative text-left bg-accent w-full rounded-md p-2 pl-6 text-sm after:absolute after:inset-y-2 after:left-2 after:w-1 after:rounded-full",
-        onClick
-          ? "hover:bg-muted transition-colors cursor-pointer hover:bg-accent/80"
-          : undefined,
+        isFullyBooked
+          ? "opacity-50 cursor-not-allowed after:bg-muted-foreground/50"
+          : onClick
+            ? "hover:bg-muted transition-colors cursor-pointer hover:bg-accent/80"
+            : undefined,
         className
       )}
     >
@@ -43,7 +48,8 @@ export function EventSlot({
         </div>
         {event.maxOccupancy && (
           <div className="text-muted-foreground text-xs">
-            {(event.maxOccupancy - currOccupancy).toLocaleString()} / {event.maxOccupancy.toLocaleString()}
+            {(event.maxOccupancy - currOccupancy).toLocaleString()} /{" "}
+            {event.maxOccupancy.toLocaleString()}
           </div>
         )}
       </div>
