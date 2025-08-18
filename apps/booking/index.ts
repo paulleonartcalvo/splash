@@ -8,8 +8,9 @@ import Fastify, {
 } from "fastify";
 
 import cors from "@fastify/cors";
-import swagger from '@fastify/swagger';
-import swaggerUI from '@fastify/swagger-ui';
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
+
 import { authPlugin } from "./plugins/auth";
 import { fastifyDrizzle } from "./plugins/drizzle";
 import { errorHandlerPlugin } from "./plugins/errorHandler";
@@ -30,22 +31,26 @@ const fastify = Fastify({
   logger: true,
 }).withTypeProvider<TypeBoxTypeProvider>();
 
-
-await fastify.register(swagger)
+await fastify.register(swagger);
 
 await fastify.register(swaggerUI, {
-  routePrefix: '/documentation',
+  routePrefix: "/documentation",
   uiConfig: {
-    docExpansion: 'full',
-    deepLinking: false
+    docExpansion: "full",
+    deepLinking: false,
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject, request, reply) => { return swaggerObject },
-  transformSpecificationClone: true
-})
+  transformSpecification: (swaggerObject, request, reply) => {
+    return swaggerObject;
+  },
+  transformSpecificationClone: true,
+});
 
 fastify.register(cors);
+// fastify.register(jwt, {
+//   secret: Bun.env["JWT_SECRET"]!,
+// });
 
 fastify.register(errorHandlerPlugin);
 
