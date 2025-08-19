@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import { addDays, format, isSameDay, isToday } from 'date-fns';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
@@ -13,8 +15,6 @@ import {
   type ReactNode,
   useContext,
 } from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 // Context for sharing state between components
 type MiniCalendarContextType = {
@@ -114,7 +114,7 @@ export const MiniCalendar = ({
     <MiniCalendarContext.Provider value={contextValue}>
       <div
         className={cn(
-          'flex items-center gap-2 rounded-lg border bg-background p-2',
+          'flex items-center gap-2 rounded-lg border bg-background p-2 overflow-hidden',
           className
         )}
         {...props}
