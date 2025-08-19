@@ -145,7 +145,6 @@ export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCar
         <MiniCalendar
           onValueChange={(date) => {
             if (date) {
-              console.log('Calendar date selected:', date);
               setSelectedDate(date);
             }
           }}
