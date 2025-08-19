@@ -33,7 +33,7 @@ export const getLocationsQueryOptions = (args: GetLocationsArgs | SkipToken) => 
     queryKey: ["locations", args],
     url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/locations`,
     args,
-    searchParams: (args) => args.searchParams ? createSearchParams(args.searchParams) : createSearchParams({}),
+    searchParams: (args) => createSearchParams(args.searchParams),
   });
 };
 

@@ -1,3 +1,4 @@
+
 import { type CalendarEvent, EventSlot } from "./CalendarEventSlot";
 import {
   MiniCalendar,
@@ -5,6 +6,7 @@ import {
   MiniCalendarDays,
   MiniCalendarNavigation,
 } from "./ui/shadcn-io/mini-calendar";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 const testEvents: CalendarEvent[] = [
   {
@@ -13,7 +15,7 @@ const testEvents: CalendarEvent[] = [
     start: "2025-08-18T09:00:00.000Z",
     end: "2025-08-18T14:00:00.000Z",
     repeats: true,
-    maxOccupancy: 150
+    maxOccupancy: 150,
   },
   {
     id: "2",
@@ -95,7 +97,26 @@ export function SessionsCard({ events = testEvents }: SessionsCardProps) {
           <MiniCalendarNavigation direction="next" />
         </MiniCalendar>
       </div>
-
+      <ToggleGroup variant="outline" type="multiple">
+        <ToggleGroupItem value="m" aria-label="Toggle bold">
+         M
+        </ToggleGroupItem>
+        <ToggleGroupItem value="t" aria-label="Toggle bold">
+         T
+        </ToggleGroupItem>
+        <ToggleGroupItem value="w" aria-label="Toggle bold">
+         W
+        </ToggleGroupItem>
+        <ToggleGroupItem value="th" aria-label="Toggle italic">
+          TH
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="f"
+          aria-label="Toggle strikethrough"
+        >
+          F
+        </ToggleGroupItem>
+      </ToggleGroup>
       {/* Scrollable Events Section */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="flex flex-col gap-2">

@@ -65,7 +65,7 @@ export const getSessionsQueryOptions = (args: GetSessionsArgs | SkipToken) => {
     queryKey: ["sessions", args],
     url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/sessions`,
     args,
-    searchParams: (args) => args.searchParams ? createSearchParams(args.searchParams) : createSearchParams({}),
+    searchParams: (args) => createSearchParams(args.searchParams),
   });
 };
 
@@ -147,7 +147,7 @@ export const findSessionsQueryOptions = (args: FindSessionsArgs | SkipToken) => 
     queryKey: ["sessions", "find", args],
     url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/sessions/find`,
     args,
-    searchParams: (args) => args.searchParams ? createSearchParams(args.searchParams) : createSearchParams({}),
+    searchParams: (args) => createSearchParams(args.searchParams),
   });
 };
 
@@ -177,7 +177,7 @@ export const findSessionBookingsQueryOptions = (args: FindSessionBookingsArgs | 
     queryKey: ["sessions", "bookings", args],
     url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/sessions/bookings`,
     args,
-    searchParams: (args) => args.searchParams ? createSearchParams(args.searchParams) : createSearchParams({}),
+    searchParams: (args) => createSearchParams(args.searchParams),
   });
 };
 

@@ -1,9 +1,11 @@
 import { LoadingMessage } from "@/components/LoadingMessage";
 import { useAuth } from "@/contexts/AuthContext";
-import { createRequest } from "@/lib/api";
 import { queryClient } from "@/main";
-import { type GetLocationsSuccessResponse } from "@/services/location/queries";
-import { type GetOrganizationByIdSuccessResponse } from "@/services/organization/queries";
+import { getLocationsQueryOptions, type GetLocationsSuccessResponse } from "@/services/location/queries";
+import {
+  getOrganizationByIdQueryOptions,
+  type GetOrganizationByIdSuccessResponse,
+} from "@/services/organization/queries";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$organization")({
@@ -23,29 +25,22 @@ export const Route = createFileRoute("/$organization")({
     }
 
     const data =
-      await queryClient.ensureQueryData<GetOrganizationByIdSuccessResponse>({
-        queryKey: ["organizations", params.organization],
-        queryFn: () =>
-          createRequest(
-            `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations/${params.organization}`
-          ),
-      });
+      await queryClient.ensureQueryData<GetOrganizationByIdSuccessResponse>(
+        getOrganizationByIdQueryOptions({
+          pathParams: {
+            id: params.organization,
+          },
+        })
+      );
 
     const locationsData =
-      await queryClient.ensureQueryData<GetLocationsSuccessResponse>({
-        queryKey: ["locations", params.organization],
-        queryFn: () =>
-          createRequest(
-            `${import.meta.env["VITE_BOOKING_API_URL"]}/locations`,
-            {
-              searchParams: new URLSearchParams({
-                organizationId: params.organization,
-              }),
-            }
-          ),
-      });
+      await queryClient.ensureQueryData<GetLocationsSuccessResponse>(getLocationsQueryOptions({
+        'searchParams': {
+          'organization_id': params.organization,
+        }
+      }));
 
-    return { organization: data.data, locations: locationsData.data };
+    return { organization: data.data, locations: locationsData.data};
   },
 
   // loader: async ({ params }) => {
