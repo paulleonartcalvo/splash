@@ -64,7 +64,7 @@ export const sessions = pgTable("sessions", {
 	endTime: time("end_time").notNull(),
 	locationId: uuid("location_id").notNull(),
 	rrule: text(),
-	status: sessionStatusEnum().default('draft'),
+	status: sessionStatusEnum().default('draft').notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.locationId],
