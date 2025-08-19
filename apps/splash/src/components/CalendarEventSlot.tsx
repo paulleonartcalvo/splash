@@ -51,8 +51,7 @@ export function EventSlot({
       <div className="font-medium">{event.name}</div>
       <div className="flex justify-between items-end">
         <div className="text-muted-foreground text-xs">
-          {dayjs(event.start).tz(timezone).format("h:mm A")} -
-          {dayjs(event.end).tz(timezone).format("h:mm A")}
+          {`${dayjs(event.start).tz(timezone).format("h:mm A")} - ${dayjs(event.end).tz(timezone).format("h:mm A")}`}
         </div>
         {event.maxOccupancy && (
           <div className="text-muted-foreground text-xs">
