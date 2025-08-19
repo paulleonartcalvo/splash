@@ -23,7 +23,7 @@ export interface GetUserOrganizationsArgs {}
 
 export const getUserOrganizationsQueryOptions = (args: GetUserOrganizationsArgs | SkipToken = {}) =>
   queryOptions<GetUserOrganizationsSuccessResponse, GetUserOrganizationsArgs>({
-    queryKey: ["organizations", "user"],
+    queryKey: ["organizations", "user", args],
     url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations`,
     args,
   });
@@ -41,13 +41,15 @@ export interface GetOrganizationByIdErrorResponse {
 }
 
 export interface GetOrganizationByIdArgs {
-  organizationId: string;
+  pathParams: {
+    id: string;
+  };
 }
 
 export const getOrganizationByIdQueryOptions = (args: GetOrganizationByIdArgs | SkipToken) =>
   queryOptions<GetOrganizationByIdSuccessResponse, GetOrganizationByIdArgs>({
-    queryKey: ["organizations", args === skipToken ? undefined : args.organizationId],
-    url: (args) => `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations/${args.organizationId}`,
+    queryKey: ["organizations", args],
+    url: (args) => `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations/${args.pathParams.id}`,
     args,
   });
 

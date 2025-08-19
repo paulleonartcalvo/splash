@@ -62,7 +62,9 @@ function RouteComponent() {
             defaultOrganization={organization.id}
             onSubmit={async (newLocation) => {
               toast
-                .promise(createLocationMutation.mutateAsync(newLocation), {
+                .promise(createLocationMutation.mutateAsync({
+                    body: newLocation
+                }), {
                   success: "Location created",
                   loading: "Creating location...",
                   error: "Failed to create location",

@@ -19,6 +19,7 @@ import { inviteRoutes } from "./src/routes/invites";
 import { locationRoutes } from "./src/routes/locations";
 import { organizationRoutes } from "./src/routes/organizations";
 import { roleRoutes } from "./src/routes/roles";
+import { sessionRoutes } from "./src/routes/sessions";
 export type FastifyTypebox = FastifyInstance<
   RawServerDefault,
   RawRequestDefaultExpression<RawServerDefault>,
@@ -63,6 +64,7 @@ await fastify.register(inviteRoutes, { prefix: "/invites" });
 await fastify.register(organizationRoutes, { prefix: "/organizations" });
 await fastify.register(locationRoutes, { prefix: "/locations" });
 await fastify.register(roleRoutes, { prefix: "/roles" });
+await fastify.register(sessionRoutes, { prefix: "/sessions" });
 
 fastify.listen({ port: 3000 }, function (err) {
   if (err) {
