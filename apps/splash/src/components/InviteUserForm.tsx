@@ -92,7 +92,9 @@ export function InviteUserForm({
   const locationsResult = LocationService.useGetLocationsQuery(
     watchedOrganization
       ? {
-          organizationId: watchedOrganization,
+          searchParams: {
+            organization_id: watchedOrganization,
+          },
         }
       : skipToken
   );
@@ -145,7 +147,7 @@ export function InviteUserForm({
                     onValueChange={(value) => {
                       console.log(value);
                       field.onChange(value);
-                      form.setValue("location", [])
+                      form.setValue("location", []);
                     }}
                     data={
                       organizationsResult.data?.data.map((d) => ({
@@ -197,10 +199,7 @@ export function InviteUserForm({
                       <ComboboxList>
                         <ComboboxEmpty />
                         {locationsResult.data?.data.map((location) => (
-                          <ComboboxItem
-                            key={location.id}
-                            value={location.id}
-                          >
+                          <ComboboxItem key={location.id} value={location.id}>
                             {location.name}
                           </ComboboxItem>
                         ))}
@@ -221,7 +220,6 @@ export function InviteUserForm({
                 <FormLabel>Role</FormLabel>
                 <FormControl>
                   <Combobox
-                  
                     type="user's role"
                     value={field.value.toString()}
                     onValueChange={(v) => {

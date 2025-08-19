@@ -1,5 +1,5 @@
-import { useGetLocationsQuery, useGetLocationByIdQuery } from "./queries";
 import { useCreateLocationMutation } from "./mutations";
+import { useGetLocationByIdQuery, useGetLocationsQuery } from "./queries";
 
 export const LocationService = {
   useGetLocationsQuery,
@@ -9,15 +9,16 @@ export const LocationService = {
 
 // Export types
 export type {
-  Location,
-  GetLocationsArgs,
-  GetLocationsSuccessResponse,
   GetLocationByIdArgs,
   GetLocationByIdSuccessResponse,
+  GetLocationsArgs,
+  GetLocationsSuccessResponse,
+  Location
 } from "./queries";
 
 export type {
   CreateLocationArgs,
-  CreateLocationSuccessResponse,
   CreateLocationErrorResponse,
+  CreateLocationSuccessResponse
 } from "./mutations";
+
