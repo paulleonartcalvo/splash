@@ -1,5 +1,10 @@
 import { cn } from "@/lib/utils";
-import { formatDateRange } from "little-date";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export type CalendarEvent = {
   id: string;
@@ -15,10 +20,12 @@ type EventSlotProps = Omit<
   "onClick"
 > & {
   event: CalendarEvent;
+  timezone: string; // Location's timezone
   onClick?: (event: CalendarEvent) => void;
 };
 export function EventSlot({
   event,
+  timezone,
   className,
   onClick,
   ...props
@@ -44,7 +51,8 @@ export function EventSlot({
       <div className="font-medium">{event.name}</div>
       <div className="flex justify-between items-end">
         <div className="text-muted-foreground text-xs">
-          {formatDateRange(new Date(event.start), new Date(event.end))}
+          {dayjs(event.start).tz(timezone).format("h:mm A")} -
+          {dayjs(event.end).tz(timezone).format("h:mm A")}
         </div>
         {event.maxOccupancy && (
           <div className="text-muted-foreground text-xs">

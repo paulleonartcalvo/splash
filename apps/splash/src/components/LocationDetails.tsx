@@ -16,6 +16,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Location } from "@/services/location/queries";
+import { SessionService } from "@/services/session/sessionService";
+import dayjs from "dayjs";
 import { formatDateRange } from "little-date";
 import {
   CalendarIcon,
@@ -25,6 +27,8 @@ import {
   TicketIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import { RRule } from "rrule";
+import { toast } from "sonner";
 import { CreateSessionForm } from "./CreateSessionForm";
 import { SessionsCard } from "./SessionsCard";
 import { Status, StatusIndicator, StatusLabel } from "./ui/shadcn-io/status";
@@ -34,6 +38,7 @@ type LocationDetailsProps = {
 };
 
 export function LocationDetails({ location }: LocationDetailsProps) {
+  const createSessionMutation = SessionService.useCreateSessionMutation();
   return (
     <div className="w-full h-full p-6">
       {/* Header Section */}
@@ -55,7 +60,7 @@ export function LocationDetails({ location }: LocationDetailsProps) {
                 Create Session
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="overflow-y-scroll max-h-screen">
               <DialogHeader>
                 <DialogTitle>Create New Session</DialogTitle>
                 <DialogDescription>
@@ -63,6 +68,40 @@ export function LocationDetails({ location }: LocationDetailsProps) {
                 </DialogDescription>
               </DialogHeader>
               <CreateSessionForm
+                onSubmit={({ recurrence, ...rest }) => {
+                  let rrule: string | undefined;
+
+                  if (recurrence) {
+                    rrule = new RRule({
+                      freq: recurrence.frequency,
+                      interval: recurrence.interval,
+                      byweekday: recurrence.byWeekDay,
+                      bymonthday: recurrence.byMonthDay,
+                      bymonth: recurrence.byMonth,
+                      // Make date from yyyy-mm-dd string
+                      dtstart: dayjs(rest.startDate).toDate(),
+                      until: recurrence.until
+                        ? dayjs(recurrence.until).toDate()
+                        : undefined,
+                      tzid: location.timezone,
+                    }).toString();
+                  }
+
+                  toast.promise(
+                    createSessionMutation.mutateAsync({
+                      body: {
+                        ...rest,
+                        locationId: location.id,
+                        rrule,
+                      },
+                    }),
+                    {
+                      loading: "Creating session...",
+                      success: "Session created successfully!",
+                      error: "Failed to create session. Please try again.",
+                    }
+                  );
+                }}
                 timezone={location.timezone}
                 formId="create-session-form"
               />
@@ -99,11 +138,12 @@ export function LocationDetails({ location }: LocationDetailsProps) {
             <CalendarIcon className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent className="max-h-80 overflow-hidden">
-            <SessionsCard />
+            <SessionsCard locationId={location.id}  timezone={location.timezone} />
             {/* <CardDescription>Next session: Today at 2:00 PM</CardDescription> */}
           </CardContent>
         </Card>
         {/* My Upcoming Sessions */}
+
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-lg font-medium">
