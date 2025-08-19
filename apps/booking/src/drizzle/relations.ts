@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm/relations";
+import { authUsers as usersInAuth } from 'drizzle-orm/supabase';
 import { locations, organizations, sessions, userInvites, userLocations, userOrganizations, userSessions } from "./schema";
 
-import { authUsers as usersInAuth } from 'drizzle-orm/supabase';
 export const userOrganizationsRelations = relations(userOrganizations, ({one}) => ({
 	organization: one(organizations, {
 		fields: [userOrganizations.organizationId],
