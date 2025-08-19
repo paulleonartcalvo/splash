@@ -11,14 +11,14 @@ import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 
-import { authPlugin } from "./plugins/auth";
-import { fastifyDrizzle } from "./plugins/drizzle";
-import { errorHandlerPlugin } from "./plugins/errorHandler";
-import { authRoutes } from "./routes/auth";
-import { inviteRoutes } from "./routes/invites";
-import { locationRoutes } from "./routes/locations";
-import { organizationRoutes } from "./routes/organizations";
-import { roleRoutes } from "./routes/roles";
+import { authPlugin } from "./src/plugins/auth";
+import { fastifyDrizzle } from "./src/plugins/drizzle";
+import { errorHandlerPlugin } from "./src/plugins/errorHandler";
+import { authRoutes } from "./src/routes/auth";
+import { inviteRoutes } from "./src/routes/invites";
+import { locationRoutes } from "./src/routes/locations";
+import { organizationRoutes } from "./src/routes/organizations";
+import { roleRoutes } from "./src/routes/roles";
 export type FastifyTypebox = FastifyInstance<
   RawServerDefault,
   RawRequestDefaultExpression<RawServerDefault>,
