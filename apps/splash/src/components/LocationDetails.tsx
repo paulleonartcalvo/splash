@@ -39,6 +39,8 @@ type LocationDetailsProps = {
 
 export function LocationDetails({ location }: LocationDetailsProps) {
   const createSessionMutation = SessionService.useCreateSessionMutation();
+
+
   return (
     <div className="w-full h-full p-6">
       {/* Header Section */}
@@ -138,7 +140,9 @@ export function LocationDetails({ location }: LocationDetailsProps) {
             <CalendarIcon className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent className="max-h-80 overflow-hidden">
-            <SessionsCard locationId={location.id}  timezone={location.timezone} />
+            <SessionsCard locationId={location.id}  timezone={location.timezone} onEventClick={(event) => {
+
+            }} />
             {/* <CardDescription>Next session: Today at 2:00 PM</CardDescription> */}
           </CardContent>
         </Card>

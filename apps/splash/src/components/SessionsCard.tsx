@@ -1,7 +1,7 @@
 import { SessionService } from "@/services/session/sessionService";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
-import { datetime, RRule } from "rrule";
+import { RRule } from "rrule";
 import { type CalendarEvent, EventSlot } from "./CalendarEventSlot";
 import {
   MiniCalendar,
@@ -82,8 +82,9 @@ type SessionsCardProps = {
   events?: CalendarEvent[];
   locationId: string;
   timezone: string; // Timezone for the location
+  onEventClick?: (event: CalendarEvent) => void; // Optional callback for event clicks
 };
-export function SessionsCard({ locationId, timezone }: SessionsCardProps) {
+export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCardProps) {
   const locationSessions = SessionService.useGetSessionsQuery({
     searchParams: {
       location_id: locationId,
@@ -93,121 +94,49 @@ export function SessionsCard({ locationId, timezone }: SessionsCardProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const generatedEvents = useMemo(() => {
-    // Convert sessions with RRule to CalendarEvent format
     const calendarEvents: CalendarEvent[] = [];
+    const selectedInTimezone = dayjs(selectedDate).tz(timezone, true);
+
+    // Helper function to create event from session and date
+    const createEvent = (session: any, eventDate: dayjs.Dayjs, repeats: boolean) => {
+      const dateStr = eventDate.format("YYYY-MM-DD");
+      const startLocal = dayjs.tz(`${dateStr} ${session.startTime}`, timezone);
+      const endLocal = dayjs.tz(`${dateStr} ${session.endTime}`, timezone);
+
+      return {
+        id: session.id,
+        name: session.title,
+        start: startLocal.toISOString(),
+        end: endLocal.toISOString(),
+        repeats,
+      };
+    };
 
     locationSessions.data?.data.forEach((session) => {
       if (!session.rrule) {
-        // If no RRule, treat as a single event
-        // Extract date and combine with times in location timezone
-        const sessionDate = dayjs(session.startDate)
-          .tz(timezone)
-          .format("YYYY-MM-DD");
-        const startLocal = dayjs.tz(
-          `${sessionDate} ${session.startTime}`,
-          timezone
-        );
-        const endLocal = dayjs.tz(
-          `${sessionDate} ${session.endTime}`,
-          timezone
-        );
-
-        calendarEvents.push({
-          id: session.id,
-          name: session.title,
-          start: startLocal.toISOString(),
-          end: endLocal.toISOString(),
-          repeats: false,
-          // maxOccupancy: session.maxOccupancy,
-        });
-
+        // Single event: use the session's start date
+        const sessionDate = dayjs(session.startDate).tz(timezone);
+        calendarEvents.push(createEvent(session, sessionDate, false));
         return;
       }
 
-      // Parse the RRule string to generate recurring events
+      // Recurring event: check if selected date has any occurrences
       const rule = RRule.fromString(session.rrule);
-
-      console.log('DEBUG Session:', {
-        sessionId: session.id,
-        startDate: session.startDate,
-        rrule: session.rrule,
-        timezone,
-        selectedDate,
-      });
-
-      // Convert selected date to the target timezone while preserving the calendar date
-      // The true parameter prevents date shifting during timezone conversion
-      const selectedInTimezone = dayjs(selectedDate).tz(timezone, true);
-      const startOfDayLocal = selectedInTimezone.startOf('day');
-      const endOfDayLocal = selectedInTimezone.endOf('day');
       
-      // Convert to UTC for RRULE comparison
-      const startOfDayUTC = startOfDayLocal.utc().toDate();
-      const endOfDayUTC = endOfDayLocal.utc().toDate();
+      // Check for any occurrences on the selected day (regardless of time)
+      const startOfDay = selectedInTimezone.startOf('day').utc().toDate();
+      const endOfDay = selectedInTimezone.endOf('day').utc().toDate();
+      const occurrences = rule.between(startOfDay, endOfDay, true);
       
-      const startOfDay = datetime(
-        startOfDayUTC.getUTCFullYear(),
-        startOfDayUTC.getUTCMonth() + 1,
-        startOfDayUTC.getUTCDate(),
-        startOfDayUTC.getUTCHours(),
-        startOfDayUTC.getUTCMinutes(),
-        startOfDayUTC.getUTCSeconds()
-      );
-      const endOfDay = datetime(
-        endOfDayUTC.getUTCFullYear(),
-        endOfDayUTC.getUTCMonth() + 1,
-        endOfDayUTC.getUTCDate(),
-        endOfDayUTC.getUTCHours(),
-        endOfDayUTC.getUTCMinutes(),
-        endOfDayUTC.getUTCSeconds()
-      );
-
-      console.log('DEBUG Date range:', {
-        startOfDayLocal: startOfDayLocal.format(),
-        endOfDayLocal: endOfDayLocal.format(),
-        startOfDay,
-        endOfDay
-      });
-
-      const dates = rule.between(startOfDay, endOfDay, true);
-
-      console.log('DEBUG RRULE dates found:', dates);
-
-      dates.forEach((ruleDate) => {
-        // Create a date in the location's timezone using the rule date and session times
-        const dateStr = dayjs(ruleDate).format("YYYY-MM-DD");
-
-        // Combine the rule date with session start/end times in location timezone
-        const startLocal = dayjs.tz(
-          `${dateStr} ${session.startTime}`,
-          timezone
-        );
-        const endLocal = dayjs.tz(`${dateStr} ${session.endTime}`, timezone);
-
-        console.log('DEBUG Creating event:', {
-          ruleDate,
-          dateStr,
-          startTime: session.startTime,
-          endTime: session.endTime,
-          startLocal: startLocal.format(),
-          endLocal: endLocal.format(),
-          startISO: startLocal.toISOString(),
-          endISO: endLocal.toISOString()
-        });
-
-        calendarEvents.push({
-          id: session.id,
-          name: session.title,
-          start: startLocal.toISOString(),
-          end: endLocal.toISOString(),
-          repeats: true,
-          // maxOccupancy: session.maxOccupancy,
-        });
-      });
+      if (occurrences.length > 0) {
+        // Use the first occurrence to get the correct date
+        const eventDate = dayjs(occurrences[0]);
+        calendarEvents.push(createEvent(session, eventDate, true));
+      }
     });
 
     return calendarEvents;
-  }, [locationSessions.data?.data, selectedDate]);
+  }, [locationSessions.data?.data, selectedDate, timezone]);
 
   return (
     <div className="flex flex-col h-full">
@@ -248,6 +177,7 @@ export function SessionsCard({ locationId, timezone }: SessionsCardProps) {
                 key={`${e.id}-${index}`}
                 event={e}
                 timezone={timezone}
+                onClick={onEventClick}
               />
             ))
           )}
