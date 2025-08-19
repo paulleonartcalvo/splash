@@ -1,6 +1,8 @@
-import { pgTable, uuid, timestamp, text, foreignKey, check, bigint, unique } from "drizzle-orm/pg-core"
-import { sql } from "drizzle-orm"
+import { sql } from "drizzle-orm";
+import { bigint, check, date, foreignKey, pgEnum, pgTable, text, time, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { authUsers as users } from 'drizzle-orm/supabase';
 
+export const sessionStatusEnum = pgEnum("session_status_enum", ['draft', 'active', 'disabled'])
 
 
 export const organizations = pgTable("organizations", {
@@ -49,6 +51,48 @@ export const locations = pgTable("locations", {
 			name: "locations_organization_id_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
 	unique("locations_org_slug_unique").on(table.slug, table.organizationId),
+]);
+
+export const sessions = pgTable("sessions", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	title: text().notNull(),
+	description: text(),
+	startDate: date("start_date").notNull(),
+	startTime: time("start_time").notNull(),
+	endTime: time("end_time").notNull(),
+	locationId: uuid("location_id").notNull(),
+	rrule: text(),
+	status: sessionStatusEnum().default('draft'),
+}, (table) => [
+	foreignKey({
+			columns: [table.locationId],
+			foreignColumns: [locations.id],
+			name: "sessions_location_id_fkey"
+		}),
+]);
+
+export const userSessions = pgTable("user_sessions", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity({ name: "user_sessions_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	userId: uuid("user_id").notNull(),
+	sessionId: uuid("session_id").notNull(),
+	instanceDatetime: timestamp("instance_datetime", { withTimezone: true, mode: 'string' }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.sessionId],
+			foreignColumns: [sessions.id],
+			name: "user_sessions_session_id_fkey"
+		}),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_sessions_user_id_fkey"
+		}),
+	unique("user_sessions_unique").on(table.userId, table.sessionId, table.instanceDatetime),
 ]);
 
 export const userInvites = pgTable("user_invites", {

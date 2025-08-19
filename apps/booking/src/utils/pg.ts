@@ -9,7 +9,7 @@ type TxType = PgTransaction<
   any
 >;
 
-// Extended context function
+// Use this when making requests with a specific user context
 export const withTenantContext = (
   db: DrizzleDb,
   userId: string | null,
