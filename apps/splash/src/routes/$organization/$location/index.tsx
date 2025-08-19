@@ -11,7 +11,9 @@ export const Route = createFileRoute("/$organization/$location/")({
   loader: async ({ context, params }) => {
     try {
       const locationData = await queryClient.ensureQueryData(
-        getLocationByIdQueryOptions({ locationId: params.location })
+        getLocationByIdQueryOptions({ pathParams: {
+          id: params.location
+        } })
       );
 
       return {

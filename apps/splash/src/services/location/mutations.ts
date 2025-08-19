@@ -3,11 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Location } from "./queries";
 
 export interface CreateLocationArgs {
-  name: string;
-  slug: string;
-  address: string;
-  timezone: string;
-  organizationId: string;
+  body: {
+    name: string;
+    slug: string;
+    address: string;
+    timezone: string;
+    organizationId: string;
+  };
 }
 
 export interface CreateLocationSuccessResponse {
@@ -27,13 +29,13 @@ export const useCreateLocationMutation = () => {
         `${import.meta.env["VITE_BOOKING_API_URL"]}/locations`,
         {
           method: "POST",
-          body: JSON.stringify(args),
+          body: JSON.stringify(args.body),
         }
       ),
     onSuccess: (_, variables) => {
       // Invalidate and refetch locations for the organization
       queryClient.invalidateQueries({
-        queryKey: ["locations", variables.organizationId],
+        queryKey: ["locations", { searchParams: { organization_id: variables.body.organizationId } }],
       });
       // Also invalidate the general locations query
       queryClient.invalidateQueries({

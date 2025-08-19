@@ -1,15 +1,15 @@
 import { LocationService } from "@/services/location/locationService";
 import { skipToken } from "@tanstack/react-query";
 import {
-    Combobox,
-    ComboboxContent,
-    ComboboxCreateNew,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-    ComboboxTrigger,
-    type ComboboxProps,
+  Combobox,
+  ComboboxContent,
+  ComboboxCreateNew,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  type ComboboxProps,
 } from "./ui/shadcn-io/combobox";
 
 type LocationPickerProps = {
@@ -22,7 +22,13 @@ type LocationPickerProps = {
   //   defaultValue?: string
 } & Omit<
   ComboboxProps,
-  "onValueChange" | "value" | "defaultValue" | "multiple" | "className" | "data" | "type"
+  | "onValueChange"
+  | "value"
+  | "defaultValue"
+  | "multiple"
+  | "className"
+  | "data"
+  | "type"
 >;
 export function LocationPicker({
   organizationId,
@@ -36,7 +42,9 @@ export function LocationPicker({
   const locationsResult = LocationService.useGetLocationsQuery(
     organizationId
       ? {
-          organizationId,
+          searchParams: {
+            organization_id: organizationId,
+          },
         }
       : skipToken
   );

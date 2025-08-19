@@ -178,9 +178,11 @@ function RootComponent() {
 
                 toast.promise(
                   createOrganizationMutation.mutateAsync({
-                    name: values.name,
-                    slug: values.slug,
-                    createdBy: session.user.id,
+                    body: {
+                      name: values.name,
+                      slug: values.slug,
+                      createdBy: session.user.id,
+                    },
                   }),
                   {
                     loading: "Creating organization...",
@@ -227,11 +229,16 @@ function RootComponent() {
                   return;
                 }
 
-                toast.promise(createLocationMutation.mutateAsync(values), {
-                  loading: "Creating location...",
-                  success: "Location created successfully!",
-                  error: "Failed to create location",
-                });
+                toast.promise(
+                  createLocationMutation.mutateAsync({
+                    body: values,
+                  }),
+                  {
+                    loading: "Creating location...",
+                    success: "Location created successfully!",
+                    error: "Failed to create location",
+                  }
+                );
               }}
             />
             <DialogFooter>

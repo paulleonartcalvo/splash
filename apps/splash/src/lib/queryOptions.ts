@@ -9,7 +9,7 @@ export function createQueryFn<T = any, TArgs = any>(
   args: TArgs | SkipToken,
   options?: {
     authorized?: boolean;
-    searchParams?: URLSearchParams | Record<string, string>;
+    searchParams?: (args: TArgs) => URLSearchParams | Record<string, string> | undefined;
   }
 ) {
   const { authorized = true, searchParams } = options || {};
@@ -20,6 +20,7 @@ export function createQueryFn<T = any, TArgs = any>(
   }
 
   const url = urlCallback(args);
+  const params = searchParams ? searchParams(args) : undefined;
 
   // If authorization is required, check for session
   if (authorized) {
@@ -32,14 +33,14 @@ export function createQueryFn<T = any, TArgs = any>(
       }
 
       return createRequest<T>(url, {
-        searchParams,
+        searchParams: params,
         token: currentSession.access_token,
       });
     };
   }
 
   // For non-authorized requests
-  return (): Promise<T> => createRequest<T>(url, { searchParams });
+  return (): Promise<T> => createRequest<T>(url, { searchParams: params });
 }
 
 // Main queryOptions helper
@@ -48,7 +49,7 @@ export function queryOptions<T = any, TArgs = any>(
     url: (args: TArgs) => string;
     args: TArgs | SkipToken;
     authorized?: boolean;
-    searchParams?: URLSearchParams | Record<string, string>;
+    searchParams?: (args: TArgs) => URLSearchParams | Record<string, string> | undefined;
   }
 ): UseQueryOptions<T, Error> {
   const { url, args, authorized = true, searchParams, ...restOptions } = options;

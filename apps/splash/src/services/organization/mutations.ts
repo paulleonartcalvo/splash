@@ -2,10 +2,12 @@ import { createRequest } from "@/lib/api";
 import { queryClient } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 
-export interface CreateOrganizationRequest {
-  name: string;
-  slug: string;
-  createdBy: string;
+export interface CreateOrganizationArgs {
+  body: {
+    name: string;
+    slug: string;
+    createdBy: string;
+  };
 }
 
 export interface CreateOrganizationSuccessResponse {
@@ -28,12 +30,12 @@ export type CreateOrganizationResponse =
 
 export const useCreateOrganizationMutation = () => {
   return useMutation({
-    mutationFn: (request: CreateOrganizationRequest) =>
+    mutationFn: (args: CreateOrganizationArgs) =>
       createRequest<CreateOrganizationResponse>(
         `${import.meta.env["VITE_BOOKING_API_URL"]}/organizations`,
         {
           method: "POST",
-          body: JSON.stringify(request),
+          body: JSON.stringify(args.body),
         }
       ),
     onSuccess: () => {
