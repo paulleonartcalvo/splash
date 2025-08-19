@@ -158,7 +158,7 @@ export function CreateSessionForm({
     defaultValues: {
       title: "",
       description: "",
-      startDate: dayjs().format("YYYY-MM-DD"),
+      startDate: dayjs().tz(timezone).format("YYYY-MM-DD"),
       startTime: "",
       endTime: "",
     },
