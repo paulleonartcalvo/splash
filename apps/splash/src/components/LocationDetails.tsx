@@ -18,7 +18,6 @@ import {
 import type { Location } from "@/services/location/queries";
 import { SessionService } from "@/services/session/sessionService";
 import { useNavigate } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import { formatDateRange } from "little-date";
 import {
   CalendarIcon,
@@ -28,7 +27,6 @@ import {
   TicketIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import { RRule } from "rrule";
 import { toast } from "sonner";
 import { CreateSessionForm } from "./CreateSessionForm";
 import { SessionsCard } from "./SessionsCard";
@@ -75,30 +73,12 @@ export function LocationDetails({ location }: LocationDetailsProps) {
               </DialogHeader>
               <CreateSessionForm
                 onSubmit={({ recurrence, ...rest }) => {
-                  let rrule: string | undefined;
-
-                  if (recurrence) {
-                    rrule = new RRule({
-                      freq: recurrence.frequency,
-                      interval: recurrence.interval,
-                      byweekday: recurrence.byWeekDay,
-                      bymonthday: recurrence.byMonthDay,
-                      bymonth: recurrence.byMonth,
-                      // Make date from yyyy-mm-dd string
-                      dtstart: dayjs(rest.startDate).toDate(),
-                      until: recurrence.until
-                        ? dayjs(recurrence.until).toDate()
-                        : undefined,
-                      tzid: location.timezone,
-                    }).toString();
-                  }
-
                   toast.promise(
                     createSessionMutation.mutateAsync({
                       body: {
                         ...rest,
                         locationId: location.id,
-                        rrule,
+                        rrule: recurrence,
                       },
                     }),
                     {
@@ -148,15 +128,14 @@ export function LocationDetails({ location }: LocationDetailsProps) {
               locationId={location.id}
               timezone={location.timezone}
               onEventClick={(event) => {
-
-                console.log(event)
+                console.log(event);
                 navigate({
-                  to: './book/$session/$occurrence',
+                  to: "./book/$session/$occurrence",
                   params: {
                     session: event.sessionId,
                     occurrence: event.occurrenceId,
-                  }
-                })
+                  },
+                });
               }}
             />
             {/* <CardDescription>Next session: Today at 2:00 PM</CardDescription> */}

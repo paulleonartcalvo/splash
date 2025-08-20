@@ -1,59 +1,59 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 import { CheckIcon } from "lucide-react";
 import { useCallback } from "react";
 import {
-    useForm,
-    type SubmitErrorHandler,
-    type SubmitHandler,
+  useForm,
+  type SubmitErrorHandler,
+  type SubmitHandler,
 } from "react-hook-form";
 import {
-    ALL_WEEKDAYS,
-    Frequency,
-    RRule,
-    type ByWeekday,
-    type WeekdayStr
+  ALL_WEEKDAYS,
+  Frequency,
+  RRule,
+  type ByWeekday,
+  type WeekdayStr,
 } from "rrule";
 import { toast } from "sonner";
 import z from "zod";
 import { DatePicker } from "./DatePicker";
 import { Checkbox } from "./ui/checkbox";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from "./ui/select";
 import {
-    Tags,
-    TagsContent,
-    TagsEmpty,
-    TagsGroup,
-    TagsInput,
-    TagsItem,
-    TagsList,
-    TagsTrigger,
-    TagsValue,
+  Tags,
+  TagsContent,
+  TagsEmpty,
+  TagsGroup,
+  TagsInput,
+  TagsItem,
+  TagsList,
+  TagsTrigger,
+  TagsValue,
 } from "./ui/shadcn-io/tags";
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const allowedFrequencies = [
   RRule.DAILY,
@@ -71,15 +71,15 @@ const frequencyLabels: Record<number, string> = {
 
 const weekdayOptions: Record<
   WeekdayStr,
-  { value: WeekdayStr; label: string; position: number }
+  { value: WeekdayStr; label: string; position: number; instance: ByWeekday }
 > = {
-  MO: { value: "MO", label: "Monday", position: 0 },
-  TU: { value: "TU", label: "Tuesday", position: 1 },
-  WE: { value: "WE", label: "Wednesday", position: 2 },
-  TH: { value: "TH", label: "Thursday", position: 3 },
-  FR: { value: "FR", label: "Friday", position: 4 },
-  SA: { value: "SA", label: "Saturday", position: 5 },
-  SU: { value: "SU", label: "Sunday", position: 6 },
+  MO: { value: "MO", label: "Monday", position: 0, instance: RRule.MO },
+  TU: { value: "TU", label: "Tuesday", position: 1, instance: RRule.TU },
+  WE: { value: "WE", label: "Wednesday", position: 2, instance: RRule.WE },
+  TH: { value: "TH", label: "Thursday", position: 3, instance: RRule.TH },
+  FR: { value: "FR", label: "Friday", position: 4, instance: RRule.FR },
+  SA: { value: "SA", label: "Saturday", position: 5, instance: RRule.SA },
+  SU: { value: "SU", label: "Sunday", position: 6, instance: RRule.SU },
 };
 
 const frequencySchema = z.literal(allowedFrequencies, {
@@ -111,17 +111,8 @@ const CreateSessionFormSchema = z
             if (!byWeekDay) return undefined;
 
             // Convert WeekdayStr values to RRule weekday instances
-            const weekdayMap: Record<WeekdayStr, ByWeekday> = {
-              MO: RRule.MO,
-              TU: RRule.TU,
-              WE: RRule.WE,
-              TH: RRule.TH,
-              FR: RRule.FR,
-              SA: RRule.SA,
-              SU: RRule.SU,
-            };
 
-            return byWeekDay?.map((day) => weekdayMap[day]);
+            return byWeekDay?.map((day) => weekdayOptions[day].instance);
           }),
         byMonthDay: z.array(z.number().min(1).max(31)).optional(),
         byMonth: z.array(z.number().min(1).max(12)).optional(),
@@ -132,12 +123,38 @@ const CreateSessionFormSchema = z
       .nullish()
       .transform((v) => (v === null ? undefined : v)),
   })
+
   .refine(
     ({ startTime, endTime }) => {
       return startTime < endTime;
     },
     { error: "End time must be after start time", path: ["endTime"] }
-  );
+  )
+  .transform((data) => {
+    const { recurrence, ...rest } = data;
+    if (!recurrence) {
+      return {
+        ...rest,
+        recurrence: undefined,
+      };
+    }
+
+    return {
+      ...rest,
+      recurrence: new RRule({
+        freq: recurrence.frequency,
+        interval: recurrence.interval,
+        byweekday: recurrence.byWeekDay,
+        bymonthday: recurrence.byMonthDay,
+        bymonth: recurrence.byMonth,
+        // Make date from yyyy-mm-dd string
+        dtstart: dayjs(rest.startDate).utc().toDate(),
+        until: recurrence.until
+          ? dayjs(recurrence.until).utc().toDate()
+          : undefined,
+      }).toString(),
+    };
+  });
 
 type Input = z.input<typeof CreateSessionFormSchema>;
 type Output = z.output<typeof CreateSessionFormSchema>;
@@ -153,7 +170,7 @@ export function CreateSessionForm({
   timezone,
   onSubmit,
 }: CreateSessionFormProps) {
-  const form = useForm<Input, any, Output>({
+  const form = useForm<Input, unknown, Output>({
     mode: "all",
     defaultValues: {
       title: "",
@@ -179,6 +196,7 @@ export function CreateSessionForm({
     }, []);
 
   const watchedRecurrence = form.watch("recurrence");
+
   const hasRecurrence = Boolean(watchedRecurrence);
 
   return (
@@ -235,10 +253,13 @@ export function CreateSessionForm({
                         // field.onChange(undefined);
                         return;
                       }
-                      
+
                       // Create midnight in the location's timezone, convert to UTC
                       const dateStr = dayjs(date).format("YYYY-MM-DD");
-                      const midnightInTimezone = dayjs.tz(`${dateStr}T00:00:00`, timezone);
+                      const midnightInTimezone = dayjs.tz(
+                        `${dateStr}T00:00:00`,
+                        timezone
+                      );
                       field.onChange(midnightInTimezone.utc().toISOString());
                     }}
                   />
@@ -247,6 +268,7 @@ export function CreateSessionForm({
               </FormItem>
             )}
           />
+
           <div className="grid grid-cols-2 gap-4 items-start">
             <FormField
               control={form.control}
