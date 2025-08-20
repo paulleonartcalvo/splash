@@ -23,15 +23,13 @@ Execute these commands in exact order:
 1. **Install Dependencies** (NEVER CANCEL - Set timeout to 60+ minutes):
    ```bash
    cd /path/to/splash
-   bun install  # Takes ~25 seconds, preferred for Bun runtime project
-   # Alternative: npm install  # Takes ~2 seconds but has engine warnings
+   bun install  # Takes ~25 seconds, uses bun.lock (no package-lock.json)
    ```
 
 2. **Frontend Development Server**:
    ```bash
    cd apps/splash
    bun run dev  # Starts on http://localhost:5173 in ~1.1 seconds
-   # Alternative: npm run dev
    ```
 
 3. **Frontend Build** (NEVER CANCEL - Set timeout to 30+ minutes):
@@ -148,7 +146,7 @@ bun run drizzle:pull  # Requires valid database connection
 - **404 API errors**: Backend not running or wrong VITE_BOOKING_API_URL
 
 ### Performance Notes
-- Bun is ~12x faster than npm for installs (25s vs 2s, but npm has warnings)
+- Bun install takes ~25 seconds with bun.lock file management
 - Vite builds are consistently fast (~7.5s)
 - Frontend dev server starts quickly (~1.1s)
 - Backend requires real database connection testing
@@ -179,7 +177,7 @@ apps/
 - **Frontend**: React 19, TypeScript, Vite, TanStack Router/Query, Tailwind CSS, Radix UI
 - **Backend**: Fastify, TypeScript, TypeBox, Drizzle ORM, Supabase Auth
 - **Database**: PostgreSQL via Supabase
-- **Package Management**: Bun (primary runtime) or npm (fallback)
+- **Package Management**: Bun (exclusive runtime, uses bun.lock)
 - **Build Tools**: Vite (frontend), TypeScript (both)
 
 ## Critical Timing Warnings
