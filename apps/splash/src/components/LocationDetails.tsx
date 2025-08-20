@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Location } from "@/services/location/queries";
 import { SessionService } from "@/services/session/sessionService";
+import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { formatDateRange } from "little-date";
 import {
@@ -40,6 +41,9 @@ type LocationDetailsProps = {
 export function LocationDetails({ location }: LocationDetailsProps) {
   const createSessionMutation = SessionService.useCreateSessionMutation();
 
+  const navigate = useNavigate({
+    from: "/$organization/$location",
+  });
 
   return (
     <div className="w-full h-full p-6">
@@ -140,9 +144,21 @@ export function LocationDetails({ location }: LocationDetailsProps) {
             <CalendarIcon className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent className="max-h-80 overflow-hidden">
-            <SessionsCard locationId={location.id}  timezone={location.timezone} onEventClick={(event) => {
+            <SessionsCard
+              locationId={location.id}
+              timezone={location.timezone}
+              onEventClick={(event) => {
 
-            }} />
+                console.log(event)
+                navigate({
+                  to: './book/$session/$occurrence',
+                  params: {
+                    session: event.sessionId,
+                    occurrence: event.occurrenceId,
+                  }
+                })
+              }}
+            />
             {/* <CardDescription>Next session: Today at 2:00 PM</CardDescription> */}
           </CardContent>
         </Card>

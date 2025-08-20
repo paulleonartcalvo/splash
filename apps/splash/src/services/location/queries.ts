@@ -25,6 +25,7 @@ export interface GetLocationsErrorResponse {
 export interface GetLocationsArgs {
   searchParams?: {
     organization_id?: string;
+    slug?: string;
   };
 }
 

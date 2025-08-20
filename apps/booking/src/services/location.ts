@@ -5,12 +5,16 @@ import type { DrizzleDb } from '../plugins/drizzle';
 export class LocationService {
   constructor(private db: DrizzleDb) {}
 
-  async getLocations(userId: string, organizationId?: string) {
+  async getLocations(userId: string, organizationId?: string, slug?: string) {
     // Build conditions conditionally
     const conditions = [eq(userLocations.userId, userId)];
     
     if (organizationId) {
       conditions.push(eq(locations.organizationId, organizationId));
+    }
+    
+    if (slug) {
+      conditions.push(eq(locations.slug, slug));
     }
 
     const userLocs = await this.db
@@ -101,7 +105,7 @@ export class LocationService {
   }
 
   // Keep the original method for backward compatibility
-  async getUserLocations(userId: string, organizationId?: string) {
-    return this.getLocations(userId, organizationId);
+  async getUserLocations(userId: string, organizationId?: string, slug?: string) {
+    return this.getLocations(userId, organizationId, slug);
   }
 }

@@ -7,7 +7,8 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export type CalendarEvent = {
-  id: string;
+  sessionId: string;
+  occurrenceId: number;
   name: string;
   start: string;
   end: string;
@@ -47,6 +48,7 @@ export function EventSlot({
             : undefined,
         className
       )}
+      onClick={onClick ? () => onClick(event) : undefined}
     >
       <div className="font-medium">{event.name}</div>
       <div className="flex justify-between items-end">
