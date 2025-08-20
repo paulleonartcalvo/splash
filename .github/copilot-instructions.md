@@ -7,8 +7,8 @@ Splash is a modern, real-time pool reservation system built as a monorepo with R
 ## Working Effectively
 
 ### Prerequisites Installation
-- Node.js 18+ is required (Node.js 20.19.4 confirmed working)
-- Install Bun (recommended over npm):
+- Bun runtime is required (this project uses Bun, not Node.js)
+- Install Bun:
   ```bash
   curl -fsSL https://bun.sh/install | bash
   source ~/.bashrc
@@ -23,7 +23,7 @@ Execute these commands in exact order:
 1. **Install Dependencies** (NEVER CANCEL - Set timeout to 60+ minutes):
    ```bash
    cd /path/to/splash
-   bun install  # Takes ~25 seconds, use Bun for speed
+   bun install  # Takes ~25 seconds, preferred for Bun runtime project
    # Alternative: npm install  # Takes ~2 seconds but has engine warnings
    ```
 
@@ -132,7 +132,7 @@ bun run drizzle:pull  # Requires valid database connection
    ```
    - Requires ALL Supabase environment variables
    - Should show "Supabase connection succeeded" if properly configured
-   - Starts FastAPI server on port 3000
+   - Starts Fastify server on port 3000
    - Access Swagger docs at http://localhost:3000/documentation
 
 ## Common Issues and Solutions
@@ -179,7 +179,7 @@ apps/
 - **Frontend**: React 19, TypeScript, Vite, TanStack Router/Query, Tailwind CSS, Radix UI
 - **Backend**: Fastify, TypeScript, TypeBox, Drizzle ORM, Supabase Auth
 - **Database**: PostgreSQL via Supabase
-- **Package Management**: Bun (preferred) or npm
+- **Package Management**: Bun (primary runtime) or npm (fallback)
 - **Build Tools**: Vite (frontend), TypeScript (both)
 
 ## Critical Timing Warnings
