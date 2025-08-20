@@ -11,6 +11,8 @@
     "shadcn": "bunx shadcn@latest add"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.3",
+    "@casl/react": "^5.0.0",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -33,7 +35,6 @@
     "@tanstack/react-query": "^5.85.3",
     "@tanstack/react-router": "^1.131.10",
     "@tanstack/react-router-devtools": "^1.131.10",
-    "casl": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
