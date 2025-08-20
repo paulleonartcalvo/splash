@@ -13,6 +13,7 @@ import ReactDOM from "react-dom/client";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider, useTheme } from "./components/ui/theme-provider";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AbilityProvider } from "./contexts/AbilityContext";
 import { routeTree } from "./routeTree.gen";
 
 // Create a client
@@ -63,7 +64,9 @@ if (!rootElement.innerHTML) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <AuthProvider>
-            <App router={router} />
+            <AbilityProvider>
+              <App router={router} />
+            </AbilityProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
