@@ -1,6 +1,8 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import { sessions, locations, userLocations, userSessions } from '../drizzle/schema';
 import type { DrizzleDb } from '../plugins/drizzle';
+import pkg from 'rrule';
+const { RRule } = pkg;
 
 export class SessionService {
   constructor(private db: DrizzleDb) {}
@@ -137,10 +139,15 @@ export class SessionService {
     instanceDatetime: string;
   }) {
     return await this.db.transaction(async (tx) => {
-      // Verify user has access to the session's location
-      const [sessionLocation] = await tx
+      // Verify user has access to the session and get session details for RRULE validation
+      const [sessionDetails] = await tx
         .select({
           locationId: sessions.locationId,
+          rrule: sessions.rrule,
+          startDate: sessions.startDate,
+          startTime: sessions.startTime,
+          endTime: sessions.endTime,
+          status: sessions.status,
         })
         .from(sessions)
         .innerJoin(locations, eq(sessions.locationId, locations.id))
@@ -153,9 +160,18 @@ export class SessionService {
         )
         .limit(1);
 
-      if (!sessionLocation) {
+      if (!sessionDetails) {
         throw new Error("Session not found or you don't have access to it");
       }
+
+      // Validate that the session is active
+      if (sessionDetails.status !== 'active') {
+        throw new Error("Cannot book a session that is not active");
+      }
+
+      // Validate the instance datetime against the session's RRULE
+      this.validateInstanceDatetime(instanceDatetime, sessionDetails);
+      
 
       // Create the reservation
       const [reservation] = await tx
@@ -319,5 +335,68 @@ export class SessionService {
       .where(and(...conditions));
 
     return bookings;
+  }
+
+  private validateInstanceDatetime(
+    instanceDatetime: string, 
+    sessionDetails: { 
+      rrule: string | null; 
+      startDate: string; 
+      startTime: string; 
+      endTime: string 
+    }
+  ) {
+    const instanceDate = new Date(instanceDatetime);
+    
+    // Validate that the datetime is not in the past
+    if (instanceDate < new Date()) {
+      throw new Error("Cannot book a session in the past");
+    }
+
+    // If session has no RRULE, it's a single occurrence session
+    if (!sessionDetails.rrule) {
+      // For single sessions, validate the instance date matches the session's start date
+      const sessionStartDate = new Date(sessionDetails.startDate);
+      const sessionStartTime = sessionDetails.startTime;
+      
+      // Compare just the date part (ignore time for now as instanceDatetime includes the full timestamp)
+      const instanceDateOnly = instanceDate.toISOString().split('T')[0];
+      const sessionDateOnly = sessionStartDate.toISOString().split('T')[0];
+      
+      if (instanceDateOnly !== sessionDateOnly) {
+        throw new Error("Instance date does not match the session date");
+      }
+      
+      return; // Valid single session booking
+    }
+
+    // For recurring sessions, validate against RRULE
+    try {
+      const rule = RRule.fromString(sessionDetails.rrule);
+      
+      // Check if the instance date matches any occurrence within a reasonable time window
+      // We'll check occurrences within the next 2 years to avoid infinite rules
+      const now = new Date();
+      const twoYearsFromNow = new Date();
+      twoYearsFromNow.setFullYear(now.getFullYear() + 2);
+      
+      const occurrences = rule.between(now, twoYearsFromNow, true);
+      
+      // Check if any occurrence matches the requested instance date (date part only)
+      const targetDateOnly = instanceDate.toISOString().split('T')[0];
+      const hasMatchingOccurrence = occurrences.some(occurrence => {
+        const occurrenceDateOnly = occurrence.toISOString().split('T')[0];
+        return occurrenceDateOnly === targetDateOnly;
+      });
+      
+      if (!hasMatchingOccurrence) {
+        throw new Error("Instance date does not match any occurrence of the recurring session");
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("Instance date does not match")) {
+        throw error; // Re-throw our custom error
+      }
+      throw new Error("Invalid RRULE format in session");
+    }
   }
 }
