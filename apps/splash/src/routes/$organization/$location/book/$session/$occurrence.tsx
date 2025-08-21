@@ -1,4 +1,4 @@
-import { PoolLayoutType } from "@/components/layout/PoolLayout";
+import { PoolLayout } from "@/components/layout/PoolLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
@@ -64,7 +64,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   return (
     <div className="w-full h-full">
-      <PoolLayoutType />
+      <PoolLayout />
     </div>
   );
 }

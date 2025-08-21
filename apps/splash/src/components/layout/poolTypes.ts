@@ -21,18 +21,18 @@ export type Shape = RectangleShape | CircleShape;
 interface RectangleSettings {
   type: 'rectangle';
   rounded: boolean;
-  borderWidth?: number;
 }
 
 interface CircleSettings {
   type: 'circle';
+  radius: number
   // Circle-specific settings could go here
 }
 
 export type ShapeSettings = RectangleSettings | CircleSettings;
 
 // Object Type definitions (templates/categories)
-interface PoolObjectType {
+export interface PoolObjectType {
   id: string;
   name: string;
   shapeId: string; // References a Shape
@@ -47,12 +47,12 @@ export type PoolObject = {
   label: string;
   position: { x: number; y: number }; // Position in the layout
   rotation: number;
-  size: { width: number; height: number }; // Keep for clean serialization
+  size: { width: number; height: number } | "default"; // Keep for clean serialization
   shapeSettings: ShapeSettings;
 };
 
 // Predefined shapes (hardcoded)
-const SHAPES: Record<string, Shape> = {
+export const OBJECT_SHAPES: Record<string, Shape> = {
   rectangle: {
     id: 'rectangle',
     name: 'Rectangle',
@@ -67,20 +67,20 @@ const SHAPES: Record<string, Shape> = {
 };
 
 // Object types (can be user-defined later)
-const OBJECT_TYPES: Record<string, PoolObjectType> = {
+export const OBJECT_TYPES: Record<string, PoolObjectType> = {
   poolChair: {
-    id: 'poolChair',
+    id: crypto.randomUUID(),
     name: 'Pool Chair',
     shapeId: 'rectangle',
     defaultSize: { width: 50, height: 120 },
     defaultShapeSettings: { type: 'rectangle', rounded: true }
   },
   poolUmbrella: {
-    id: 'poolUmbrella',
+    id: crypto.randomUUID(),
     name: 'Pool Umbrella',
     shapeId: 'circle',
     defaultSize: { width: 80, height: 80 },
-    defaultShapeSettings: { type: 'circle' }
+    defaultShapeSettings: { type: 'circle', radius: 80 }
   }
 };
 
@@ -90,8 +90,8 @@ export function toReactFlowNode(poolObject: PoolObject): Node<PoolObject> {
     id: poolObject.id,
     type: "poolObject",
     data: poolObject,
-    width: poolObject.size.width,
-    height: poolObject.size.height,
+    width: poolObject.size === 'default' ? OBJECT_TYPES[poolObject.typeId].defaultSize.width : poolObject.size.width,
+    height: poolObject.size === 'default' ? OBJECT_TYPES[poolObject.typeId].defaultSize.height : poolObject.size.height,
     position: poolObject.position,
   };
 }
@@ -126,7 +126,7 @@ export function getObjectType(typeId: string): PoolObjectType | undefined {
 }
 
 export function getShape(shapeId: string): Shape | undefined {
-  return SHAPES[shapeId];
+  return OBJECT_SHAPES[shapeId];
 }
 
 // Pool layout types

@@ -10,7 +10,9 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { PoolObjectNode } from "./PoolObjectNode";
+import { PoolObjectSettingsForm } from "./PoolObjectSettingsForm";
 import {
   createPoolObject,
   toReactFlowNode,
@@ -69,6 +71,8 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     right?: number;
     bottom?: number;
   } | null>(null);
+  const [editingNode, setEditingNode] = useState<PoolObject | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   // Selection utilities using ReactFlow recommended patterns
@@ -145,6 +149,34 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
 
   const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
+  const onNodeDoubleClick = useCallback(
+    (event: React.MouseEvent, node: Node<PoolObject>) => {
+      event.stopPropagation();
+      setEditingNode(node.data);
+      setDialogOpen(true);
+    },
+    []
+  );
+
+  const updateNode = useCallback(
+    (updatedNode: PoolObject) => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          if (node.id === updatedNode.id) {
+            return {
+              ...node,
+              data: updatedNode,
+            };
+          }
+          return node;
+        })
+      );
+      setDialogOpen(false);
+      setEditingNode(null);
+    },
+    [setNodes]
+  );
+
   const alignNodesAlongYAxis = useCallback(() => {
     const nodesToAlign = menu?.nodes || selectedNodes;
     if (nodesToAlign.length < 2) return;
@@ -193,7 +225,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     }));
 
     setNodes((prev) => [
-      ...prev.map(node => ({ ...node, selected: false })), // Deselect existing nodes
+      ...prev.map((node) => ({ ...node, selected: false })), // Deselect existing nodes
       ...newNodes,
     ]);
   }, [copiedNodes, setNodes]);
@@ -229,7 +261,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     });
 
     setNodes((prev) => [
-      ...prev.map(node => ({ ...node, selected: false })), // Deselect existing nodes
+      ...prev.map((node) => ({ ...node, selected: false })), // Deselect existing nodes
       ...newNodes,
     ]);
   }, [copiedNodes, setNodes]);
@@ -241,6 +273,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         snapGrid={[10, 10]}
         snapToGrid
         nodes={nodes}
+        onNodeDoubleClick={onNodeDoubleClick}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onPaneClick={onPaneClick}
@@ -292,6 +325,29 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
           </div>
         )}
       </ReactFlow>
+
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setEditingNode(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Object</DialogTitle>
+            
+            <DialogDescription>
+              Here you can update all the settings related to this object
+            </DialogDescription>
+          </DialogHeader>
+          {editingNode && (
+            <PoolObjectSettingsForm value={editingNode} onSubmit={updateNode} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -42,11 +42,11 @@ export function PoolObjectNode(props: PoolObjectNodeProps) {
   return (
     <div
       id={props.id}
-      className={`flex flex-col justify-center items-center h-full w-full bg-muted ${borderWidth} border-muted ${borderRadius} overflow-hidden transition-colors hover:bg-muted/80 ${outlineClass}`}
-      style={{
-        width: props.data.size.width,
-        height: props.data.size.height,
-      }}
+      className={`flex flex-col justify-center items-center h-full w-full bg-neutral-900 shadow-xs ${borderWidth} border-muted ${borderRadius} overflow-hidden transition-colors hover:bg-accent ${outlineClass} p-2`}
+      // style={{
+      //   width: props.data.size === 'default' ? 'auto' : props.data.size.width,
+      //   height: props.data.size === 'default' ? 'auto' : props.data.size.height,
+      // }}
     >
       <span className="text-xs text-muted-foreground font-medium p-1 truncate w-full text-center">
         {objectType.name}
