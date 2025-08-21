@@ -281,6 +281,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         onSelectionChange={({ nodes }) => {
           setSelectedNodes(nodes);
         }}
+        selectNodesOnDrag={false}
         selectionMode={SelectionMode.Partial}
         onCopy={onCopy}
         onPaste={onPaste}
