@@ -1,3 +1,4 @@
+import { PoolLayoutType } from "@/components/layout/PoolLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
@@ -26,7 +27,6 @@ export const Route = createFileRoute(
   beforeLoad: ({ params, context }) => {
     const occurrenceUTC = dayjs.unix(params.occurrence).utc();
 
-    const utcIso = occurrenceUTC.toISOString();
     // Check if occurrence is valid
     if (!occurrenceUTC.isValid()) {
       throw new Error("Invalid occurrence date");
@@ -62,5 +62,9 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <div> "/$organization/$location/book/$session/$ocurrence" </div>;
+  return (
+    <div className="w-full h-full">
+      <PoolLayoutType />
+    </div>
+  );
 }
