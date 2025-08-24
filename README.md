@@ -2,6 +2,10 @@
 
 A modern, real-time pool reservation system built to solve the chaos of broken gym booking systems.
 
+
+<img width="1512" height="859" alt="Screenshot 2025-08-23 at 8 38 10 PM" src="https://github.com/user-attachments/assets/1c52ad26-e46f-4b6f-91a3-e0aefcd79452" />
+
+
 ## The Problem
 
 Traditional pool booking systems are frustrating:
