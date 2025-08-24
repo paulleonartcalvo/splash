@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Location } from "@/services/location/queries";
 import { SessionService } from "@/services/session/sessionService";
-import dayjs from "dayjs";
+import { useNavigate } from "@tanstack/react-router";
 import { formatDateRange } from "little-date";
 import {
   CalendarIcon,
@@ -27,7 +27,6 @@ import {
   TicketIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import { RRule } from "rrule";
 import { toast } from "sonner";
 import { CreateSessionForm } from "./CreateSessionForm";
 import { SessionsCard } from "./SessionsCard";
@@ -40,6 +39,9 @@ type LocationDetailsProps = {
 export function LocationDetails({ location }: LocationDetailsProps) {
   const createSessionMutation = SessionService.useCreateSessionMutation();
 
+  const navigate = useNavigate({
+    from: "/$organization/$location",
+  });
 
   return (
     <div className="w-full h-full p-6">
@@ -71,30 +73,12 @@ export function LocationDetails({ location }: LocationDetailsProps) {
               </DialogHeader>
               <CreateSessionForm
                 onSubmit={({ recurrence, ...rest }) => {
-                  let rrule: string | undefined;
-
-                  if (recurrence) {
-                    rrule = new RRule({
-                      freq: recurrence.frequency,
-                      interval: recurrence.interval,
-                      byweekday: recurrence.byWeekDay,
-                      bymonthday: recurrence.byMonthDay,
-                      bymonth: recurrence.byMonth,
-                      // Make date from yyyy-mm-dd string
-                      dtstart: dayjs(rest.startDate).toDate(),
-                      until: recurrence.until
-                        ? dayjs(recurrence.until).toDate()
-                        : undefined,
-                      tzid: location.timezone,
-                    }).toString();
-                  }
-
                   toast.promise(
                     createSessionMutation.mutateAsync({
                       body: {
                         ...rest,
                         locationId: location.id,
-                        rrule,
+                        rrule: recurrence,
                       },
                     }),
                     {
@@ -140,9 +124,20 @@ export function LocationDetails({ location }: LocationDetailsProps) {
             <CalendarIcon className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent className="max-h-80 overflow-hidden">
-            <SessionsCard locationId={location.id}  timezone={location.timezone} onEventClick={(event) => {
-
-            }} />
+            <SessionsCard
+              locationId={location.id}
+              timezone={location.timezone}
+              onEventClick={(event) => {
+                console.log(event);
+                navigate({
+                  to: "./book/$session/$occurrence",
+                  params: {
+                    session: event.sessionId,
+                    occurrence: event.occurrenceId,
+                  },
+                });
+              }}
+            />
             {/* <CardDescription>Next session: Today at 2:00 PM</CardDescription> */}
           </CardContent>
         </Card>

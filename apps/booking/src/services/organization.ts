@@ -5,7 +5,14 @@ import type { DrizzleDb } from "../plugins/drizzle";
 export class OrganizationService {
   constructor(private db: DrizzleDb) {}
 
-  async getUserOrganizations(userId: string) {
+  async getUserOrganizations(userId: string, slug?: string) {
+    // Build conditions conditionally
+    const conditions = [eq(userOrganizations.userId, userId)];
+    
+    if (slug) {
+      conditions.push(eq(organizations.slug, slug));
+    }
+
     const userOrgs = await this.db
       .select({
         id: organizations.id,
@@ -20,7 +27,7 @@ export class OrganizationService {
         organizations,
         eq(userOrganizations.organizationId, organizations.id)
       )
-      .where(eq(userOrganizations.userId, userId));
+      .where(and(...conditions));
 
     return userOrgs;
   }

@@ -11,80 +11,17 @@ import {
 } from "./ui/shadcn-io/mini-calendar";
 import { Spinner } from "./ui/shadcn-io/spinner";
 
-const testEvents: CalendarEvent[] = [
-  {
-    id: "1",
-    name: "Morning Pool Session",
-    start: "2025-08-18T09:00:00.000Z",
-    end: "2025-08-18T14:00:00.000Z",
-    repeats: true,
-    maxOccupancy: 150,
-  },
-  {
-    id: "2",
-    name: "Afternoon Pool Session",
-    start: "2025-08-18T14:30:00.000Z",
-    end: "2025-08-18T20:00:00.000Z",
-    repeats: true,
-  },
-  {
-    id: "3",
-    name: "Private Training",
-    start: "2025-08-19T10:00:00.000Z",
-    end: "2025-08-19T11:00:00.000Z",
-    repeats: false,
-  },
-  {
-    id: "4",
-    name: "Weekend Open Swim",
-    start: "2025-08-23T08:00:00.000Z",
-    end: "2025-08-23T18:00:00.000Z",
-    repeats: true,
-  },
-  {
-    id: "5",
-    name: "Water Aerobics",
-    start: "2025-08-20T16:00:00.000Z",
-    end: "2025-08-20T17:00:00.000Z",
-    repeats: true,
-  },
-  {
-    id: "2",
-    name: "Afternoon Pool Session",
-    start: "2025-08-18T14:30:00.000Z",
-    end: "2025-08-18T20:00:00.000Z",
-    repeats: true,
-  },
-  {
-    id: "3",
-    name: "Private Training",
-    start: "2025-08-19T10:00:00.000Z",
-    end: "2025-08-19T11:00:00.000Z",
-    repeats: false,
-  },
-  {
-    id: "4",
-    name: "Weekend Open Swim",
-    start: "2025-08-23T08:00:00.000Z",
-    end: "2025-08-23T18:00:00.000Z",
-    repeats: true,
-  },
-  {
-    id: "5",
-    name: "Water Aerobics",
-    start: "2025-08-20T16:00:00.000Z",
-    end: "2025-08-20T17:00:00.000Z",
-    repeats: true,
-  },
-];
-
 type SessionsCardProps = {
   events?: CalendarEvent[];
   locationId: string;
   timezone: string; // Timezone for the location
   onEventClick?: (event: CalendarEvent) => void; // Optional callback for event clicks
 };
-export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCardProps) {
+export function SessionsCard({
+  locationId,
+  timezone,
+  onEventClick,
+}: SessionsCardProps) {
   const locationSessions = SessionService.useGetSessionsQuery({
     searchParams: {
       location_id: locationId,
@@ -98,13 +35,21 @@ export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCar
     const selectedInTimezone = dayjs(selectedDate).tz(timezone, true);
 
     // Helper function to create event from session and date
-    const createEvent = (session: any, eventDate: dayjs.Dayjs, repeats: boolean) => {
+    const createEvent = (
+      session: any,
+      eventDate: dayjs.Dayjs,
+      repeats: boolean,
+      occurrence?: dayjs.Dayjs
+    ) => {
       const dateStr = eventDate.format("YYYY-MM-DD");
       const startLocal = dayjs.tz(`${dateStr} ${session.startTime}`, timezone);
       const endLocal = dayjs.tz(`${dateStr} ${session.endTime}`, timezone);
 
+      const occurrenceId = occurrence?.utc().unix() ?? startLocal.utc().unix();
       return {
-        id: session.id,
+        sessionId: session.id,
+        // Occurrence ID is the UTC timestamp of start date and time
+        occurrenceId: occurrenceId,
         name: session.title,
         start: startLocal.toISOString(),
         end: endLocal.toISOString(),
@@ -122,16 +67,19 @@ export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCar
 
       // Recurring event: check if selected date has any occurrences
       const rule = RRule.fromString(session.rrule);
-      
+
       // Check for any occurrences on the selected day (regardless of time)
-      const startOfDay = selectedInTimezone.startOf('day').utc().toDate();
-      const endOfDay = selectedInTimezone.endOf('day').utc().toDate();
+      const startOfDay = selectedInTimezone.startOf("day").utc().toDate();
+      const endOfDay = selectedInTimezone.endOf("day").utc().toDate();
       const occurrences = rule.between(startOfDay, endOfDay, true);
-      
+
       if (occurrences.length > 0) {
+        occurrences.forEach((occurrence) => {
+          calendarEvents.push(
+            createEvent(session, dayjs(occurrence), true, dayjs(occurrence))
+          );
+        });
         // Use the first occurrence to get the correct date
-        const eventDate = dayjs(occurrences[0]);
-        calendarEvents.push(createEvent(session, eventDate, true));
       }
     });
 
@@ -173,7 +121,7 @@ export function SessionsCard({ locationId, timezone, onEventClick }: SessionsCar
           ) : (
             generatedEvents.map((e, index) => (
               <EventSlot
-                key={`${e.id}-${index}`}
+                key={`${e.sessionId}-${index}`}
                 event={e}
                 timezone={timezone}
                 onClick={onEventClick}

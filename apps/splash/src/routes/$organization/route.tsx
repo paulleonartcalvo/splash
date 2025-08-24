@@ -24,23 +24,23 @@ export const Route = createFileRoute("/$organization")({
       });
     }
 
-    const data =
-      await queryClient.ensureQueryData<GetOrganizationByIdSuccessResponse>(
+    const [orgData, locationsData] = await Promise.all([
+      queryClient.ensureQueryData<GetOrganizationByIdSuccessResponse>(
         getOrganizationByIdQueryOptions({
           pathParams: {
             id: params.organization,
           },
         })
-      );
-
-    const locationsData =
-      await queryClient.ensureQueryData<GetLocationsSuccessResponse>(getLocationsQueryOptions({
+      ),
+      queryClient.ensureQueryData<GetLocationsSuccessResponse>(getLocationsQueryOptions({
         'searchParams': {
           'organization_id': params.organization,
         }
-      }));
+      })),
+    ]);
 
-    return { organization: data.data, locations: locationsData.data};
+    
+    return { organization: orgData.data, locations: locationsData.data};
   },
 
   // loader: async ({ params }) => {
