@@ -10,7 +10,14 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { useTheme } from "../ui/theme-provider";
 import { PoolObjectNode } from "./PoolObjectNode";
 import { PoolObjectSettingsForm } from "./PoolObjectSettingsForm";
 import {
@@ -60,6 +67,7 @@ function withReactFlowProvider<T extends object>(
 }
 
 function PoolLayoutInner({ layout }: PoolLayoutProps) {
+  const themeMode = useTheme()
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   const [selectedNodes, setSelectedNodes] = useState<Node<PoolObject>[]>([]);
@@ -269,6 +277,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
   return (
     <div className="h-full w-full">
       <ReactFlow
+        colorMode={themeMode.theme}
         ref={ref}
         snapGrid={[10, 10]}
         snapToGrid
@@ -339,7 +348,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Object</DialogTitle>
-            
+
             <DialogDescription>
               Here you can update all the settings related to this object
             </DialogDescription>

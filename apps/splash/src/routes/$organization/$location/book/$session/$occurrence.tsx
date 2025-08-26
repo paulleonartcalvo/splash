@@ -44,7 +44,7 @@ export const Route = createFileRoute(
 
       if (occurrences.length === 0) {
         throw new Error(
-          "Occurrence does not match the session's recurrence rule"
+          "This slot does not match any of this session's availability"
         );
       }
 
@@ -56,6 +56,8 @@ export const Route = createFileRoute(
 
       if (sessionStartDate.isSame(occurrenceUTC)) {
         return;
+      } else {
+        throw new Error("This slot does not match any of this session's availability");
       }
     }
   },
