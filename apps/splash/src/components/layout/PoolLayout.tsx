@@ -1,14 +1,16 @@
 import {
   Background,
   Controls,
+  Panel,
   ReactFlow,
   ReactFlowProvider,
   SelectionMode,
   useNodesState,
+  useReactFlow,
   type Node,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -17,32 +19,41 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { useTheme } from "../ui/theme-provider";
 import { PoolObjectNode } from "./PoolObjectNode";
 import { PoolObjectSettingsForm } from "./PoolObjectSettingsForm";
 import {
   createPoolObject,
+  getObjectType,
+  OBJECT_TYPES,
   toReactFlowNode,
   type PoolLayoutType,
   type PoolObject,
 } from "./poolTypes";
 
 const initialPoolObjects: PoolObject[] = [
-  createPoolObject(
-    "1",
-    "poolChair",
-    "Chair 1",
-    { x: 0, y: 0 },
-    {
-      shapeSettings: { type: "rectangle", rounded: true },
-    }
-  ),
-  createPoolObject("2", "poolUmbrella", "Umbrella 1", { x: 0, y: 100 }),
+  // createPoolObject(
+  //   "1",
+  //   "poolChair",
+  //   "Chair 1",
+  //   { x: 0, y: 0 },
+  //   {
+  //     shapeSettings: { type: "rectangle", rounded: true },
+  //   }
+  // ),
+  // createPoolObject("2", "poolUmbrella", "Umbrella 1", { x: 0, y: 100 }),
 ];
 
 const initialNodes: Node<PoolObject>[] = [
-  toReactFlowNode(initialPoolObjects[0]),
-  toReactFlowNode(initialPoolObjects[1]),
+  // toReactFlowNode(initialPoolObjects[0]),
+  // toReactFlowNode(initialPoolObjects[1]),
 ];
 
 const nodeTypes = {
@@ -67,8 +78,9 @@ function withReactFlowProvider<T extends object>(
 }
 
 function PoolLayoutInner({ layout }: PoolLayoutProps) {
-  const themeMode = useTheme()
+  const themeMode = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const { screenToFlowPosition } = useReactFlow();
 
   const [selectedNodes, setSelectedNodes] = useState<Node<PoolObject>[]>([]);
   const [copiedNodes, setCopiedNodes] = useState<Node<PoolObject>[]>([]);
@@ -81,6 +93,12 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
   } | null>(null);
   const [editingNode, setEditingNode] = useState<PoolObject | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [createTypeDialogOpen, setCreateTypeDialogOpen] = useState(false);
+  const [creationMode, setCreationMode] = useState<{
+    isActive: boolean;
+    nodeTypeId?: string;
+  }>({ isActive: false });
+  const [nodeCounter, setNodeCounter] = useState(3); // For unique IDs
   const ref = useRef<HTMLDivElement>(null);
 
   // Selection utilities using ReactFlow recommended patterns
@@ -155,7 +173,44 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     [setMenu]
   );
 
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+  const onPaneClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (creationMode.isActive && creationMode.nodeTypeId) {
+        console.log("HI");
+        const objectType = getObjectType(creationMode.nodeTypeId);
+        console.log(creationMode);
+        console.log(OBJECT_TYPES);
+        if (!objectType) {
+          console.error("Unknown object type:", creationMode.nodeTypeId);
+          return;
+        }
+
+        // Use screenToFlowPosition to get correct coordinates
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        const newObject = createPoolObject(
+          `n${nodeCounter}`,
+          creationMode.nodeTypeId,
+          `${objectType.name} ${nodeCounter}`,
+          position
+        );
+
+        const newNode = toReactFlowNode(newObject);
+        console.log(newNode);
+        setNodes((prev) => [
+          ...prev.map((node) => ({ ...node, selected: false })), // Deselect existing
+          { ...newNode, selected: true }, // Select new node
+        ]);
+        setNodeCounter((prev) => prev + 1);
+      } else {
+        setMenu(null); // Close context menu
+      }
+    },
+    [creationMode, nodeCounter, setNodes, screenToFlowPosition]
+  );
 
   const onNodeDoubleClick = useCallback(
     (event: React.MouseEvent, node: Node<PoolObject>) => {
@@ -274,11 +329,27 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     ]);
   }, [copiedNodes, setNodes]);
 
+  // Handle escape key to exit creation mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && creationMode.isActive) {
+        setCreationMode({ isActive: false });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [creationMode.isActive]);
+
   return (
-    <div className="h-full w-full">
+    <div
+      className={`h-full w-full ${creationMode.isActive ? "cursor-crosshair" : ""}`}
+    >
       <ReactFlow
         colorMode={themeMode.theme}
         ref={ref}
+        style={{ cursor: "crosshair" }}
+        className="cursor-crosshair"
         snapGrid={[10, 10]}
         snapToGrid
         nodes={nodes}
@@ -295,9 +366,61 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         onCopy={onCopy}
         onPaste={onPaste}
         fitView
+        nodeOrigin={[0.5, 0.5]}
       >
         <Background />
         <Controls />
+
+        <Panel position="top-right" className="select-none">
+          <div className="bg-background/95 backdrop-blur-sm rounded-lg shadow-lg border border-border p-3 space-y-3 min-w-48">
+            <div className="text-sm font-medium">Create Objects</div>
+
+            {/* Object Type Selector */}
+            <Select
+              value={creationMode.nodeTypeId || ""}
+              onValueChange={(typeId) =>
+                setCreationMode({ isActive: true, nodeTypeId: typeId })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select type to paint" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(OBJECT_TYPES).map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Status and Controls */}
+            {creationMode.isActive ? (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">
+                  Click to place • ESC to exit
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setCreationMode({ isActive: false })}
+                >
+                  Exit Paint Mode
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => setCreateTypeDialogOpen(true)}
+              >
+                + Create New Type
+              </Button>
+            )}
+          </div>
+        </Panel>
         {menu && (
           <div
             className="absolute z-50 bg-popover text-popover-foreground min-w-32 overflow-hidden rounded-md border p-1 shadow-md"
@@ -356,6 +479,36 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
           {editingNode && (
             <PoolObjectSettingsForm value={editingNode} onSubmit={updateNode} />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create New Object Type Dialog */}
+      <Dialog
+        open={createTypeDialogOpen}
+        onOpenChange={setCreateTypeDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Object Type</DialogTitle>
+            <DialogDescription>
+              Define a new type of object that can be placed in your pool
+              layout.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              This form will be implemented next. For now, you can create object
+              types programmatically.
+            </p>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setCreateTypeDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -48,10 +48,10 @@ export function PoolObjectNode(props: PoolObjectNodeProps) {
       //   height: props.data.size === 'default' ? 'auto' : props.data.size.height,
       // }}
     >
-      <span className="text-xs text-muted-foreground font-medium p-1 truncate w-full text-center">
+      {/* <span className="text-xs text-muted-foreground font-medium p-1 truncate w-full text-center">
         {objectType.name}
-      </span>
-      <span className="text-xs text-muted-foreground/70 font-medium p-1">
+      </span> */}
+      <span className="text-xs text-muted-foreground/70 font-medium p-1 text-center">
         {props.data.label}
       </span>
     </div>

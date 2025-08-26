@@ -67,31 +67,37 @@ export const OBJECT_SHAPES: Record<string, Shape> = {
 };
 
 // Object types (can be user-defined later)
-export const OBJECT_TYPES: Record<string, PoolObjectType> = {
-  poolChair: {
+export const OBJECT_TYPES: PoolObjectType[] = [{
     id: crypto.randomUUID(),
     name: 'Pool Chair',
     shapeId: 'rectangle',
     defaultSize: { width: 50, height: 120 },
     defaultShapeSettings: { type: 'rectangle', rounded: true }
   },
-  poolUmbrella: {
+  {
     id: crypto.randomUUID(),
     name: 'Pool Umbrella',
     shapeId: 'circle',
     defaultSize: { width: 80, height: 80 },
     defaultShapeSettings: { type: 'circle', radius: 80 }
   }
-};
+]
 
 // Helper to sync PoolObject to ReactFlow Node
 export function toReactFlowNode(poolObject: PoolObject): Node<PoolObject> {
+
+  console.log('poolObject', poolObject);
+  const objectType = getObjectType(poolObject.typeId);
+  if (!objectType) {
+    throw new Error(`Unknown object type: ${poolObject.typeId}`);
+  }
+
   return {
     id: poolObject.id,
     type: "poolObject",
     data: poolObject,
-    width: poolObject.size === 'default' ? OBJECT_TYPES[poolObject.typeId].defaultSize.width : poolObject.size.width,
-    height: poolObject.size === 'default' ? OBJECT_TYPES[poolObject.typeId].defaultSize.height : poolObject.size.height,
+    width: poolObject.size === 'default' ? objectType.defaultSize.width : poolObject.size.width,
+    height: poolObject.size === 'default' ? objectType.defaultSize.height : poolObject.size.height,
     position: poolObject.position,
   };
 }
@@ -104,7 +110,7 @@ export function createPoolObject(
   position: { x: number; y: number },
   overrides: Partial<Pick<PoolObject, 'size' | 'shapeSettings' | 'rotation'>> = {}
 ): PoolObject {
-  const objectType = OBJECT_TYPES[typeId];
+  const objectType = getObjectType(typeId);
   if (!objectType) {
     throw new Error(`Unknown object type: ${typeId}`);
   }
@@ -122,7 +128,7 @@ export function createPoolObject(
 
 // Helper functions
 export function getObjectType(typeId: string): PoolObjectType | undefined {
-  return OBJECT_TYPES[typeId];
+  return OBJECT_TYPES.find(type => type.id === typeId);
 }
 
 export function getShape(shapeId: string): Shape | undefined {
