@@ -1,3 +1,4 @@
+import { PoolLayout } from "@/components/layout/PoolLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
@@ -26,7 +27,6 @@ export const Route = createFileRoute(
   beforeLoad: ({ params, context }) => {
     const occurrenceUTC = dayjs.unix(params.occurrence).utc();
 
-    const utcIso = occurrenceUTC.toISOString();
     // Check if occurrence is valid
     if (!occurrenceUTC.isValid()) {
       throw new Error("Invalid occurrence date");
@@ -44,7 +44,7 @@ export const Route = createFileRoute(
 
       if (occurrences.length === 0) {
         throw new Error(
-          "Occurrence does not match the session's recurrence rule"
+          "This slot does not match any of this session's availability"
         );
       }
 
@@ -56,11 +56,19 @@ export const Route = createFileRoute(
 
       if (sessionStartDate.isSame(occurrenceUTC)) {
         return;
+      } else {
+        throw new Error(
+          "This slot does not match any of this session's availability"
+        );
       }
     }
   },
 });
 
 function RouteComponent() {
-  return <div> "/$organization/$location/book/$session/$ocurrence" </div>;
+  return (
+    <div className="w-full h-full">
+      <PoolLayout />
+    </div>
+  );
 }
