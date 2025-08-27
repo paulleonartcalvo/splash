@@ -13,6 +13,9 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
     "/",
     {
       schema: {
+        querystring: Type.Object({
+          slug: Type.Optional(Type.String()),
+        }),
         response: {
           "2xx": Type.Object({
             data: Type.Array(
@@ -34,8 +37,9 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
     },
     async (request, reply) => {
       const user = request.getDecorator<User>("user");
+      const { slug } = request.query;
 
-      const userOrgs = await organizationService.getUserOrganizations(user.id);
+      const userOrgs = await organizationService.getUserOrganizations(user.id, slug);
 
       reply.send({
         data: userOrgs,
@@ -94,6 +98,7 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
       }
     }
   );
+
 
   // POST /organizations - Create a new organization
   fastify.post(

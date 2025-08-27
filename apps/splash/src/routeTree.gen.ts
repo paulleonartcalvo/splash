@@ -13,8 +13,12 @@ import { Route as OrganizationRouteRouteImport } from './routes/$organization/ro
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as OrganizationIndexRouteImport } from './routes/$organization/index'
+import { Route as OrganizationLocationRouteRouteImport } from './routes/$organization/$location/route'
 import { Route as OrganizationLocationIndexRouteImport } from './routes/$organization/$location/index'
 import { Route as OrganizationLocationSessionsRouteImport } from './routes/$organization/$location/sessions'
+import { Route as OrganizationLocationLayoutsNewRouteImport } from './routes/$organization/$location/layouts/new'
+import { Route as OrganizationLocationBookSessionRouteRouteImport } from './routes/$organization/$location/book/$session/route'
+import { Route as OrganizationLocationBookSessionOccurrenceRouteImport } from './routes/$organization/$location/book/$session/$occurrence'
 
 const OrganizationRouteRoute = OrganizationRouteRouteImport.update({
   id: '/$organization',
@@ -36,26 +40,54 @@ const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
   path: '/',
   getParentRoute: () => OrganizationRouteRoute,
 } as any)
+const OrganizationLocationRouteRoute =
+  OrganizationLocationRouteRouteImport.update({
+    id: '/$location',
+    path: '/$location',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
 const OrganizationLocationIndexRoute =
   OrganizationLocationIndexRouteImport.update({
-    id: '/$location/',
-    path: '/$location/',
-    getParentRoute: () => OrganizationRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrganizationLocationRouteRoute,
   } as any)
 const OrganizationLocationSessionsRoute =
   OrganizationLocationSessionsRouteImport.update({
-    id: '/$location/sessions',
-    path: '/$location/sessions',
-    getParentRoute: () => OrganizationRouteRoute,
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => OrganizationLocationRouteRoute,
+  } as any)
+const OrganizationLocationLayoutsNewRoute =
+  OrganizationLocationLayoutsNewRouteImport.update({
+    id: '/layouts/new',
+    path: '/layouts/new',
+    getParentRoute: () => OrganizationLocationRouteRoute,
+  } as any)
+const OrganizationLocationBookSessionRouteRoute =
+  OrganizationLocationBookSessionRouteRouteImport.update({
+    id: '/book/$session',
+    path: '/book/$session',
+    getParentRoute: () => OrganizationLocationRouteRoute,
+  } as any)
+const OrganizationLocationBookSessionOccurrenceRoute =
+  OrganizationLocationBookSessionOccurrenceRouteImport.update({
+    id: '/$occurrence',
+    path: '/$occurrence',
+    getParentRoute: () => OrganizationLocationBookSessionRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$organization': typeof OrganizationRouteRouteWithChildren
+  '/$organization/$location': typeof OrganizationLocationRouteRouteWithChildren
   '/$organization/': typeof OrganizationIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
-  '/$organization/$location': typeof OrganizationLocationIndexRoute
+  '/$organization/$location/': typeof OrganizationLocationIndexRoute
+  '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
+  '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -63,25 +95,36 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
   '/$organization/$location': typeof OrganizationLocationIndexRoute
+  '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
+  '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$organization': typeof OrganizationRouteRouteWithChildren
+  '/$organization/$location': typeof OrganizationLocationRouteRouteWithChildren
   '/$organization/': typeof OrganizationIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
   '/$organization/$location/': typeof OrganizationLocationIndexRoute
+  '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
+  '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/$organization'
+    | '/$organization/$location'
     | '/$organization/'
     | '/dashboard'
     | '/$organization/$location/sessions'
-    | '/$organization/$location'
+    | '/$organization/$location/'
+    | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
+    | '/$organization/$location/book/$session/$occurrence'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,14 +132,21 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$organization/$location/sessions'
     | '/$organization/$location'
+    | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
+    | '/$organization/$location/book/$session/$occurrence'
   id:
     | '__root__'
     | '/'
     | '/$organization'
+    | '/$organization/$location'
     | '/$organization/'
     | '/dashboard/'
     | '/$organization/$location/sessions'
     | '/$organization/$location/'
+    | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
+    | '/$organization/$location/book/$session/$occurrence'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,33 +185,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationIndexRouteImport
       parentRoute: typeof OrganizationRouteRoute
     }
-    '/$organization/$location/': {
-      id: '/$organization/$location/'
+    '/$organization/$location': {
+      id: '/$organization/$location'
       path: '/$location'
       fullPath: '/$organization/$location'
-      preLoaderRoute: typeof OrganizationLocationIndexRouteImport
+      preLoaderRoute: typeof OrganizationLocationRouteRouteImport
       parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/$location/': {
+      id: '/$organization/$location/'
+      path: '/'
+      fullPath: '/$organization/$location/'
+      preLoaderRoute: typeof OrganizationLocationIndexRouteImport
+      parentRoute: typeof OrganizationLocationRouteRoute
     }
     '/$organization/$location/sessions': {
       id: '/$organization/$location/sessions'
-      path: '/$location/sessions'
+      path: '/sessions'
       fullPath: '/$organization/$location/sessions'
       preLoaderRoute: typeof OrganizationLocationSessionsRouteImport
-      parentRoute: typeof OrganizationRouteRoute
+      parentRoute: typeof OrganizationLocationRouteRoute
+    }
+    '/$organization/$location/layouts/new': {
+      id: '/$organization/$location/layouts/new'
+      path: '/layouts/new'
+      fullPath: '/$organization/$location/layouts/new'
+      preLoaderRoute: typeof OrganizationLocationLayoutsNewRouteImport
+      parentRoute: typeof OrganizationLocationRouteRoute
+    }
+    '/$organization/$location/book/$session': {
+      id: '/$organization/$location/book/$session'
+      path: '/book/$session'
+      fullPath: '/$organization/$location/book/$session'
+      preLoaderRoute: typeof OrganizationLocationBookSessionRouteRouteImport
+      parentRoute: typeof OrganizationLocationRouteRoute
+    }
+    '/$organization/$location/book/$session/$occurrence': {
+      id: '/$organization/$location/book/$session/$occurrence'
+      path: '/$occurrence'
+      fullPath: '/$organization/$location/book/$session/$occurrence'
+      preLoaderRoute: typeof OrganizationLocationBookSessionOccurrenceRouteImport
+      parentRoute: typeof OrganizationLocationBookSessionRouteRoute
     }
   }
 }
 
-interface OrganizationRouteRouteChildren {
-  OrganizationIndexRoute: typeof OrganizationIndexRoute
+interface OrganizationLocationBookSessionRouteRouteChildren {
+  OrganizationLocationBookSessionOccurrenceRoute: typeof OrganizationLocationBookSessionOccurrenceRoute
+}
+
+const OrganizationLocationBookSessionRouteRouteChildren: OrganizationLocationBookSessionRouteRouteChildren =
+  {
+    OrganizationLocationBookSessionOccurrenceRoute:
+      OrganizationLocationBookSessionOccurrenceRoute,
+  }
+
+const OrganizationLocationBookSessionRouteRouteWithChildren =
+  OrganizationLocationBookSessionRouteRoute._addFileChildren(
+    OrganizationLocationBookSessionRouteRouteChildren,
+  )
+
+interface OrganizationLocationRouteRouteChildren {
   OrganizationLocationSessionsRoute: typeof OrganizationLocationSessionsRoute
   OrganizationLocationIndexRoute: typeof OrganizationLocationIndexRoute
+  OrganizationLocationBookSessionRouteRoute: typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  OrganizationLocationLayoutsNewRoute: typeof OrganizationLocationLayoutsNewRoute
+}
+
+const OrganizationLocationRouteRouteChildren: OrganizationLocationRouteRouteChildren =
+  {
+    OrganizationLocationSessionsRoute: OrganizationLocationSessionsRoute,
+    OrganizationLocationIndexRoute: OrganizationLocationIndexRoute,
+    OrganizationLocationBookSessionRouteRoute:
+      OrganizationLocationBookSessionRouteRouteWithChildren,
+    OrganizationLocationLayoutsNewRoute: OrganizationLocationLayoutsNewRoute,
+  }
+
+const OrganizationLocationRouteRouteWithChildren =
+  OrganizationLocationRouteRoute._addFileChildren(
+    OrganizationLocationRouteRouteChildren,
+  )
+
+interface OrganizationRouteRouteChildren {
+  OrganizationLocationRouteRoute: typeof OrganizationLocationRouteRouteWithChildren
+  OrganizationIndexRoute: typeof OrganizationIndexRoute
 }
 
 const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
+  OrganizationLocationRouteRoute: OrganizationLocationRouteRouteWithChildren,
   OrganizationIndexRoute: OrganizationIndexRoute,
-  OrganizationLocationSessionsRoute: OrganizationLocationSessionsRoute,
-  OrganizationLocationIndexRoute: OrganizationLocationIndexRoute,
 }
 
 const OrganizationRouteRouteWithChildren =

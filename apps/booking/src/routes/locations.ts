@@ -8,13 +8,14 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   const db = fastify.getDecorator<DrizzleDb>("drizzle");
   const locationService = new LocationService(db);
 
-  // GET /locations - Get user's locations with optional organization filter
+  // GET /locations - Get user's locations with optional organization and slug filters
   fastify.get(
     "/",
     {
       schema: {
         querystring: Type.Object({
           organization_id: Type.Optional(Type.String()),
+          slug: Type.Optional(Type.String()),
         }),
         response: {
           "2xx": Type.Object({
@@ -39,11 +40,12 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async (request, reply) => {
       const user = request.getDecorator<User>("user");
-      const { organization_id } = request.query;
+      const { organization_id, slug } = request.query;
 
       const userLocations = await locationService.getLocations(
         user.id,
-        organization_id
+        organization_id,
+        slug
       );
 
       reply.send({
@@ -105,6 +107,7 @@ export const locationRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       }
     }
   );
+
 
   // POST /locations - Create a new location
   fastify.post(
