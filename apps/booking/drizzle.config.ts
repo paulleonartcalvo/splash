@@ -9,10 +9,10 @@ export default defineConfig({
     ssl: {
       rejectUnauthorized: false,
     },
-    password: process.env["SUPABASE_PG_PASSWORD"]!,
-    user: process.env["SUPABASE_PG_USER"]!,
-    host: process.env["SUPABASE_PG_HOST"]!,
-    port: Number(process.env["SUPABASE_PG_PORT"]!),
-    database: process.env["SUPABASE_PG_DB"]!,
+    password: Bun.env["SUPABASE_PG_PASSWORD"]!,
+    user: Bun.env["SUPABASE_PG_USER"]!,
+    host: Bun.env["SUPABASE_PG_HOST"]!,
+    port: Number(Bun.env["SUPABASE_PG_PORT"]!),
+    database: Bun.env["SUPABASE_PG_DB"]!,
   },
 });

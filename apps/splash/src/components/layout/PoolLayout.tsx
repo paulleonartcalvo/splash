@@ -38,6 +38,7 @@ import {
   type PoolObject,
 } from "./poolTypes";
 
+import "./pool-layout.css";
 const initialPoolObjects: PoolObject[] = [
   // createPoolObject(
   //   "1",
@@ -175,6 +176,14 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
 
   const onPaneClick = useCallback(
     (event: React.MouseEvent) => {
+      // If there are selected nodes, just deselect them and don't paint
+      if (selectedNodes.length > 0) {
+        deselectAll();
+        setMenu(null);
+        return;
+      }
+
+      // Normal painting behavior when no nodes are selected
       if (creationMode.isActive && creationMode.nodeTypeId) {
         console.log("HI");
         const objectType = getObjectType(creationMode.nodeTypeId);
@@ -202,14 +211,21 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         console.log(newNode);
         setNodes((prev) => [
           ...prev.map((node) => ({ ...node, selected: false })), // Deselect existing
-          { ...newNode, selected: true }, // Select new node
+          { ...newNode, selected: false }, // Don't select new node
         ]);
         setNodeCounter((prev) => prev + 1);
       } else {
         setMenu(null); // Close context menu
       }
     },
-    [creationMode, nodeCounter, setNodes, screenToFlowPosition]
+    [
+      creationMode,
+      nodeCounter,
+      setNodes,
+      screenToFlowPosition,
+      selectedNodes,
+      deselectAll,
+    ]
   );
 
   const onNodeDoubleClick = useCallback(
@@ -329,17 +345,23 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
     ]);
   }, [copiedNodes, setNodes]);
 
-  // Handle escape key to exit creation mode
+  // Handle escape key to deselect first, then exit creation mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && creationMode.isActive) {
-        setCreationMode({ isActive: false });
+      if (e.key === "Escape") {
+        if (selectedNodes.length > 0) {
+          // First priority: deselect nodes if any are selected
+          deselectAll();
+        } else if (creationMode.isActive) {
+          // Second priority: exit creation mode if nothing is selected
+          setCreationMode({ isActive: false });
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [creationMode.isActive]);
+  }, [selectedNodes.length, creationMode.isActive, deselectAll]);
 
   return (
     <div
@@ -348,8 +370,8 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
       <ReactFlow
         colorMode={themeMode.theme}
         ref={ref}
-        style={{ cursor: "crosshair" }}
-        className="cursor-crosshair"
+        // className="[&_.react-flow__pane.draggable]:cursor-pointer [&_.react-flow__pane]:cursor-default"
+        className={creationMode.isActive ? "cursor-crosshair" : ""}
         snapGrid={[10, 10]}
         snapToGrid
         nodes={nodes}
@@ -372,9 +394,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         <Controls />
 
         <Panel position="top-right" className="select-none">
-          <div className="bg-background/95 backdrop-blur-sm rounded-lg shadow-lg border border-border p-3 space-y-3 min-w-48">
-            <div className="text-sm font-medium">Create Objects</div>
-
+          <div className="flex items-center gap-2">
             {/* Object Type Selector */}
             <Select
               value={creationMode.nodeTypeId || ""}
@@ -382,7 +402,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
                 setCreationMode({ isActive: true, nodeTypeId: typeId })
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-48 bg-background/95 backdrop-blur-sm shadow-lg border border-border">
                 <SelectValue placeholder="Select type to paint" />
               </SelectTrigger>
               <SelectContent>
@@ -394,36 +414,20 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
               </SelectContent>
             </Select>
 
-            {/* Status and Controls */}
-            {creationMode.isActive ? (
-              <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">
-                  Click to place • ESC to exit
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => setCreationMode({ isActive: false })}
-                >
-                  Exit Paint Mode
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setCreateTypeDialogOpen(true)}
-              >
-                + Create New Type
-              </Button>
-            )}
+            {/* Create New Type Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-background/95 backdrop-blur-sm shadow-lg border border-border"
+              onClick={() => setCreateTypeDialogOpen(true)}
+            >
+              +
+            </Button>
           </div>
         </Panel>
         {menu && (
           <div
-            className="absolute z-50 bg-popover text-popover-foreground min-w-32 overflow-hidden rounded-md border p-1 shadow-md"
+            className="select-none absolute z-50 bg-popover text-popover-foreground min-w-32 overflow-hidden rounded-md border p-1 shadow-md"
             style={{
               top: menu.top,
               left: menu.left,
@@ -437,7 +441,7 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
               className="w-full justify-start"
               onClick={alignNodesAlongYAxis}
             >
-              Align Y-Axis
+              Align Vertically
             </Button>
             <Button
               variant="ghost"

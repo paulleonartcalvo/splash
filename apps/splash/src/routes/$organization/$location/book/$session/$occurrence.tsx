@@ -57,7 +57,9 @@ export const Route = createFileRoute(
       if (sessionStartDate.isSame(occurrenceUTC)) {
         return;
       } else {
-        throw new Error("This slot does not match any of this session's availability");
+        throw new Error(
+          "This slot does not match any of this session's availability"
+        );
       }
     }
   },

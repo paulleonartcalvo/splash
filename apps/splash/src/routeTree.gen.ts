@@ -16,6 +16,7 @@ import { Route as OrganizationIndexRouteImport } from './routes/$organization/in
 import { Route as OrganizationLocationRouteRouteImport } from './routes/$organization/$location/route'
 import { Route as OrganizationLocationIndexRouteImport } from './routes/$organization/$location/index'
 import { Route as OrganizationLocationSessionsRouteImport } from './routes/$organization/$location/sessions'
+import { Route as OrganizationLocationLayoutsNewRouteImport } from './routes/$organization/$location/layouts/new'
 import { Route as OrganizationLocationBookSessionRouteRouteImport } from './routes/$organization/$location/book/$session/route'
 import { Route as OrganizationLocationBookSessionOccurrenceRouteImport } from './routes/$organization/$location/book/$session/$occurrence'
 
@@ -57,6 +58,12 @@ const OrganizationLocationSessionsRoute =
     path: '/sessions',
     getParentRoute: () => OrganizationLocationRouteRoute,
   } as any)
+const OrganizationLocationLayoutsNewRoute =
+  OrganizationLocationLayoutsNewRouteImport.update({
+    id: '/layouts/new',
+    path: '/layouts/new',
+    getParentRoute: () => OrganizationLocationRouteRoute,
+  } as any)
 const OrganizationLocationBookSessionRouteRoute =
   OrganizationLocationBookSessionRouteRouteImport.update({
     id: '/book/$session',
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
   '/$organization/$location/': typeof OrganizationLocationIndexRoute
   '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
   '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRoutesByTo {
@@ -88,6 +96,7 @@ export interface FileRoutesByTo {
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
   '/$organization/$location': typeof OrganizationLocationIndexRoute
   '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
   '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRoutesById {
@@ -100,6 +109,7 @@ export interface FileRoutesById {
   '/$organization/$location/sessions': typeof OrganizationLocationSessionsRoute
   '/$organization/$location/': typeof OrganizationLocationIndexRoute
   '/$organization/$location/book/$session': typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  '/$organization/$location/layouts/new': typeof OrganizationLocationLayoutsNewRoute
   '/$organization/$location/book/$session/$occurrence': typeof OrganizationLocationBookSessionOccurrenceRoute
 }
 export interface FileRouteTypes {
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/$organization/$location/sessions'
     | '/$organization/$location/'
     | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
     | '/$organization/$location/book/$session/$occurrence'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/$organization/$location/sessions'
     | '/$organization/$location'
     | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
     | '/$organization/$location/book/$session/$occurrence'
   id:
     | '__root__'
@@ -133,6 +145,7 @@ export interface FileRouteTypes {
     | '/$organization/$location/sessions'
     | '/$organization/$location/'
     | '/$organization/$location/book/$session'
+    | '/$organization/$location/layouts/new'
     | '/$organization/$location/book/$session/$occurrence'
   fileRoutesById: FileRoutesById
 }
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationLocationSessionsRouteImport
       parentRoute: typeof OrganizationLocationRouteRoute
     }
+    '/$organization/$location/layouts/new': {
+      id: '/$organization/$location/layouts/new'
+      path: '/layouts/new'
+      fullPath: '/$organization/$location/layouts/new'
+      preLoaderRoute: typeof OrganizationLocationLayoutsNewRouteImport
+      parentRoute: typeof OrganizationLocationRouteRoute
+    }
     '/$organization/$location/book/$session': {
       id: '/$organization/$location/book/$session'
       path: '/book/$session'
@@ -229,6 +249,7 @@ interface OrganizationLocationRouteRouteChildren {
   OrganizationLocationSessionsRoute: typeof OrganizationLocationSessionsRoute
   OrganizationLocationIndexRoute: typeof OrganizationLocationIndexRoute
   OrganizationLocationBookSessionRouteRoute: typeof OrganizationLocationBookSessionRouteRouteWithChildren
+  OrganizationLocationLayoutsNewRoute: typeof OrganizationLocationLayoutsNewRoute
 }
 
 const OrganizationLocationRouteRouteChildren: OrganizationLocationRouteRouteChildren =
@@ -237,6 +258,7 @@ const OrganizationLocationRouteRouteChildren: OrganizationLocationRouteRouteChil
     OrganizationLocationIndexRoute: OrganizationLocationIndexRoute,
     OrganizationLocationBookSessionRouteRoute:
       OrganizationLocationBookSessionRouteRouteWithChildren,
+    OrganizationLocationLayoutsNewRoute: OrganizationLocationLayoutsNewRoute,
   }
 
 const OrganizationLocationRouteRouteWithChildren =
