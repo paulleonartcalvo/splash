@@ -7,27 +7,33 @@ interface BaseShape {
 }
 
 interface RectangleShape extends BaseShape {
-  type: 'rectangle';
+  type: "rectangle";
   defaultRounded: boolean;
 }
 
 interface CircleShape extends BaseShape {
-  type: 'circle';
+  type: "circle";
 }
 
 export type Shape = RectangleShape | CircleShape;
 
 // Shape-specific settings
 interface RectangleSettings {
-  type: 'rectangle';
+  type: "rectangle";
   rounded: boolean;
+  defaultWidth: number;
+  defaultHeight: number;
 }
 
 interface CircleSettings {
-  type: 'circle';
-  radius: number
-  // Circle-specific settings could go here
+  type: "circle";
+  radius: number;
 }
+
+export type ShapeSettingsMap = {
+  rectangle: RectangleSettings;
+  circle: CircleSettings;
+};
 
 export type ShapeSettings = RectangleSettings | CircleSettings;
 
@@ -35,8 +41,6 @@ export type ShapeSettings = RectangleSettings | CircleSettings;
 export interface PoolObjectType {
   id: string;
   name: string;
-  shapeId: string; // References a Shape
-  defaultSize: { width: number; height: number };
   defaultShapeSettings: ShapeSettings;
 }
 
@@ -47,57 +51,64 @@ export type PoolObject = {
   label: string;
   position: { x: number; y: number }; // Position in the layout
   rotation: number;
-  size: { width: number; height: number } | "default"; // Keep for clean serialization
   shapeSettings: ShapeSettings;
 };
 
 // Predefined shapes (hardcoded)
 export const OBJECT_SHAPES: Record<string, Shape> = {
   rectangle: {
-    id: 'rectangle',
-    name: 'Rectangle',
-    type: 'rectangle',
-    defaultRounded: false
+    id: "rectangle",
+    name: "Rectangle",
+    type: "rectangle",
+    defaultRounded: false,
   },
   circle: {
-    id: 'circle', 
-    name: 'Circle',
-    type: 'circle'
-  }
+    id: "circle",
+    name: "Circle",
+    type: "circle",
+  },
 };
 
 // Object types (can be user-defined later)
-export const OBJECT_TYPES: PoolObjectType[] = [{
+export const OBJECT_TYPES: PoolObjectType[] = [
+  {
     id: crypto.randomUUID(),
-    name: 'Pool Chair',
-    shapeId: 'rectangle',
-    defaultSize: { width: 50, height: 120 },
-    defaultShapeSettings: { type: 'rectangle', rounded: true }
+    name: "Pool Chair",
+    defaultShapeSettings: { type: "rectangle", rounded: true, defaultWidth: 50, defaultHeight: 120 },
   },
   {
     id: crypto.randomUUID(),
-    name: 'Pool Umbrella',
-    shapeId: 'circle',
-    defaultSize: { width: 80, height: 80 },
-    defaultShapeSettings: { type: 'circle', radius: 80 }
+    name: "Pool Umbrella",
+    defaultShapeSettings: { type: "circle", radius: 40 },
+  },
+];
+
+// Helper to extract size from shape settings
+function getSizeFromShapeSettings(shapeSettings: ShapeSettings): { width: number; height: number } {
+  if (shapeSettings.type === "rectangle") {
+    return {
+      width: shapeSettings.defaultWidth,
+      height: shapeSettings.defaultHeight,
+    };
+  } else {
+    return {
+      width: shapeSettings.radius * 2,
+      height: shapeSettings.radius * 2,
+    };
   }
-]
+}
 
 // Helper to sync PoolObject to ReactFlow Node
 export function toReactFlowNode(poolObject: PoolObject): Node<PoolObject> {
-
-  console.log('poolObject', poolObject);
-  const objectType = getObjectType(poolObject.typeId);
-  if (!objectType) {
-    throw new Error(`Unknown object type: ${poolObject.typeId}`);
-  }
+  console.log("poolObject", poolObject);
+  const size = getSizeFromShapeSettings(poolObject.shapeSettings);
 
   return {
     id: poolObject.id,
     type: "poolObject",
     data: poolObject,
-    width: poolObject.size === 'default' ? objectType.defaultSize.width : poolObject.size.width,
-    height: poolObject.size === 'default' ? objectType.defaultSize.height : poolObject.size.height,
+    width: size.width,
+    height: size.height,
     position: poolObject.position,
   };
 }
@@ -108,7 +119,9 @@ export function createPoolObject(
   typeId: string,
   label: string,
   position: { x: number; y: number },
-  overrides: Partial<Pick<PoolObject, 'size' | 'shapeSettings' | 'rotation'>> = {}
+  overrides: Partial<
+    Pick<PoolObject, "shapeSettings" | "rotation">
+  > = {}
 ): PoolObject {
   const objectType = getObjectType(typeId);
   if (!objectType) {
@@ -121,14 +134,13 @@ export function createPoolObject(
     label,
     position,
     rotation: overrides.rotation ?? 0,
-    size: overrides.size ?? objectType.defaultSize,
     shapeSettings: overrides.shapeSettings ?? objectType.defaultShapeSettings,
   };
 }
 
 // Helper functions
 export function getObjectType(typeId: string): PoolObjectType | undefined {
-  return OBJECT_TYPES.find(type => type.id === typeId);
+  return OBJECT_TYPES.find((type) => type.id === typeId);
 }
 
 export function getShape(shapeId: string): Shape | undefined {

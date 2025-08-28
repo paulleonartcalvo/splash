@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
@@ -38,6 +39,7 @@ import {
   type PoolObject,
 } from "./poolTypes";
 
+import { NewShapeForm } from "./NewShapeForm";
 import "./pool-layout.css";
 const initialPoolObjects: PoolObject[] = [
   // createPoolObject(
@@ -491,29 +493,16 @@ function PoolLayoutInner({ layout }: PoolLayoutProps) {
         open={createTypeDialogOpen}
         onOpenChange={setCreateTypeDialogOpen}
       >
+        <DialogHeader>
+          <DialogTitle>Create New Object Type</DialogTitle>
+          <DialogDescription>
+            Define a new type of object that can be placed in your pool layout.
+          </DialogDescription>
+        </DialogHeader>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Object Type</DialogTitle>
-            <DialogDescription>
-              Define a new type of object that can be placed in your pool
-              layout.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              This form will be implemented next. For now, you can create object
-              types programmatically.
-            </p>
-          </div>
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setCreateTypeDialogOpen(false)}
-            >
-              Close
-            </Button>
-          </div>
+          <NewShapeForm />
         </DialogContent>
+        <DialogFooter></DialogFooter>
       </Dialog>
     </div>
   );
