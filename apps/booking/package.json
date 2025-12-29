@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "0.30.5"
+    "drizzle-kit": "^0.31.8"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -22,9 +22,9 @@
     "@fastify/swagger-ui": "^5.2.3",
     "@fastify/type-provider-typebox": "^5.2.0",
     "@sinclair/typebox": "^0.34.39",
-    "@supabase/supabase-js": "^2.55.0",
+    "@supabase/supabase-js": "^2.89.0",
     "dotenv": "^17.2.1",
-    "drizzle-orm": "^0.44.4",
+    "drizzle-orm": "^0.45.1",
     "fastify": "^5.5.0",
     "fastify-plugin": "^5.0.1",
     "jsonwebtoken": "^9.0.2",

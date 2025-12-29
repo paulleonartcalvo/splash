@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
-import { locations, userLocations } from '../drizzle/schema';
-import type { DrizzleDb } from '../plugins/drizzle';
+import { and, eq } from "drizzle-orm";
+import { locations, userLocations } from "../db/schema";
+import type { DrizzleDb } from "../plugins/drizzle";
 
 export class LocationService {
   constructor(private db: DrizzleDb) {}
@@ -8,11 +8,11 @@ export class LocationService {
   async getLocations(userId: string, organizationId?: string, slug?: string) {
     // Build conditions conditionally
     const conditions = [eq(userLocations.userId, userId)];
-    
+
     if (organizationId) {
       conditions.push(eq(locations.organizationId, organizationId));
     }
-    
+
     if (slug) {
       conditions.push(eq(locations.slug, slug));
     }
@@ -50,10 +50,7 @@ export class LocationService {
       .from(locations)
       .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
       .where(
-        and(
-          eq(locations.id, locationId),
-          eq(userLocations.userId, userId)
-        )
+        and(eq(locations.id, locationId), eq(userLocations.userId, userId))
       )
       .limit(1);
 
@@ -75,8 +72,6 @@ export class LocationService {
     organizationId: string;
     createdBy: string;
   }) {
-
-
     return await this.db.transaction(async (tx) => {
       // 1. Create the location
       const [location] = await tx
@@ -105,7 +100,11 @@ export class LocationService {
   }
 
   // Keep the original method for backward compatibility
-  async getUserLocations(userId: string, organizationId?: string, slug?: string) {
+  async getUserLocations(
+    userId: string,
+    organizationId?: string,
+    slug?: string
+  ) {
     return this.getLocations(userId, organizationId, slug);
   }
 }

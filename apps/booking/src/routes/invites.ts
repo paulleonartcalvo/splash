@@ -15,7 +15,7 @@ export const inviteRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         body: Type.Object({
           email: Type.String(),
           organizationId: Type.String(),
-          locationId: Type.Number(),
+          locationId: Type.String(),
         }),
         response: {
           "2xx": Type.Object({
@@ -63,7 +63,7 @@ export const inviteRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
                 organizationId: Type.String(),
                 organizationName: Type.String(),
                 organizationSlug: Type.String(),
-                locationId: Type.Number(),
+                locationId: Type.String(),
                 locationName: Type.String(),
                 locationSlug: Type.String(),
               })
@@ -105,7 +105,7 @@ export const inviteRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           "2xx": Type.Object({
             data: Type.Object({
               organizationId: Type.String(),
-              locationId: Type.Number(),
+              locationId: Type.String(),
             }),
           }),
           default: Type.Object({

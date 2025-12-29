@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { roles } from "../drizzle/schema";
+import { roles } from "../db/schema";
 import type { DrizzleDb } from "../plugins/drizzle";
 
 export interface Role {

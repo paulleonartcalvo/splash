@@ -37,7 +37,7 @@ export const authRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           email,
           options: {
             shouldCreateUser: true,
-            emailRedirectTo: `${process.env.FRONTEND_URL}`,
+            emailRedirectTo: `${Bun.env.FRONTEND_URL}`,
             data: {
               // Custom user metadata
               app_source: "splash",

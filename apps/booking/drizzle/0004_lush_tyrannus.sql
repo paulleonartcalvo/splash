@@ -1,0 +1,1 @@
+ALTER TABLE "user_organizations" ADD CONSTRAINT "user_organizations_role_fkey" FOREIGN KEY ("role") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;

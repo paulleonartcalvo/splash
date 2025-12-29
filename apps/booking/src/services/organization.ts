@@ -1,5 +1,5 @@
-import { eq, and } from "drizzle-orm";
-import { organizations, userOrganizations } from "../drizzle/schema";
+import { and, eq } from "drizzle-orm";
+import { organizations, userOrganizations } from "../db/schema";
 import type { DrizzleDb } from "../plugins/drizzle";
 
 export class OrganizationService {
@@ -86,7 +86,7 @@ export class OrganizationService {
         userId: createdBy,
         organizationId: organization.id,
         role: "owner",
-      });
+      })
 
       return organization;
     });

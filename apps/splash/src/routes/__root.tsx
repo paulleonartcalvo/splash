@@ -25,7 +25,9 @@ import { router } from "@/main";
 import { InviteService } from "@/services/invite/inviteService";
 import { LocationService } from "@/services/location/locationService";
 import { OrganizationService } from "@/services/organization/organizationService";
+import { ProfileService } from "@/services/profile/profileService";
 import type { Session } from "@supabase/supabase-js";
+import { skipToken } from "@tanstack/react-query";
 import {
   HeadContent,
   Outlet,
@@ -34,7 +36,7 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import Splash from "../assets/splash.svg?react";
 
@@ -77,27 +79,45 @@ function RootComponent() {
 
   const invitesResult = InviteService.useGetUserInvitesQuery();
 
+  const profileResult = ProfileService.useGetProfileQuery(
+    !session
+      ? skipToken
+      : {
+          pathParams: {
+            userId: session.user.id,
+          },
+        }
+  );
+
   const createOrganizationMutation =
     OrganizationService.useCreateOrganizationMutation();
   const createLocationMutation = LocationService.useCreateLocationMutation();
 
   // Convert invites to notifications
-  const notifications: NotificationItem[] = [
-    ...(invitesResult.data ?? []).map((invite) => ({
-      id: invite.id.toString(),
-      type: "item" as const,
-      title: `Invite to ${invite.organizationName}`,
-      subtitle: invite.locationName,
-      href: `/invites/${invite.id}`,
-    })),
-    // Add "View all" notification
-    {
-      id: "view-all",
-      type: "all" as const,
-      title: "View all notifications",
-      href: "/invites",
-    },
-  ];
+  const notifications: NotificationItem[] = useMemo(() => {
+    const notifs = [
+      ...(invitesResult.data ?? []).map((invite) => ({
+        id: invite.id.toString(),
+        type: "item" as const,
+        title: `Invite to ${invite.organizationName}`,
+        subtitle: invite.locationName,
+        href: `/invites/${invite.id}`,
+      })),
+      // Add "View all" notification
+      {
+        id: "view-all",
+        type: "all" as const,
+        title: "View all notifications",
+        href: "/invites",
+      },
+    ];
+
+    if (session && !profileResult.data) {
+      console.log("Profile not found for user:", session.user.id);
+    }
+
+    return notifs;
+  }, [invitesResult.data, profileResult.data, session]);
 
   const userMenuItems: UserMenuItem[] = [
     {

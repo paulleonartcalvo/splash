@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1766981292302,
+      "tag": "0000_early_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766981296695,
+      "tag": "0001_cynical_thundra",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766981660888,
+      "tag": "0002_romantic_sharon_carter",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1766981792003,
+      "tag": "0003_slimy_doctor_doom",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1766983443934,
+      "tag": "0004_lush_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1766983967744,
+      "tag": "0005_broad_pete_wisdom",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1766984077963,
+      "tag": "0006_striped_earthquake",
+      "breakpoints": true
+    }
+  ]
+}

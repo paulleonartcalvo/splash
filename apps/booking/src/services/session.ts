@@ -1,13 +1,13 @@
-import { and, eq, gte, lte } from 'drizzle-orm';
-import { sessions, locations, userLocations, userSessions } from '../drizzle/schema';
-import type { DrizzleDb } from '../plugins/drizzle';
+import { and, eq, gte, lte } from "drizzle-orm";
+import { locations, sessions, userLocations, userSessions } from "../db/schema";
+import type { DrizzleDb } from "../plugins/drizzle";
 
 export class SessionService {
   constructor(private db: DrizzleDb) {}
 
   async getSessions(userId: string, locationId?: string) {
     const conditions = [];
-    
+
     if (locationId) {
       conditions.push(eq(sessions.locationId, locationId));
     }
@@ -29,10 +29,7 @@ export class SessionService {
       .from(sessions)
       .innerJoin(locations, eq(sessions.locationId, locations.id))
       .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
-      .where(and(
-        eq(userLocations.userId, userId),
-        ...conditions
-      ));
+      .where(and(eq(userLocations.userId, userId), ...conditions));
 
     return userSess;
   }
@@ -55,12 +52,7 @@ export class SessionService {
       .from(sessions)
       .innerJoin(locations, eq(sessions.locationId, locations.id))
       .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
-      .where(
-        and(
-          eq(sessions.id, sessionId),
-          eq(userLocations.userId, userId)
-        )
-      )
+      .where(and(eq(sessions.id, sessionId), eq(userLocations.userId, userId)))
       .limit(1);
 
     return result || null;
@@ -74,7 +66,7 @@ export class SessionService {
     endTime,
     locationId,
     rrule,
-    status = 'draft',
+    status = "draft",
     userId,
   }: {
     title: string;
@@ -84,7 +76,7 @@ export class SessionService {
     endTime: string;
     locationId: string;
     rrule?: string;
-    status?: 'draft' | 'active' | 'disabled';
+    status?: "draft" | "active" | "disabled";
     userId: string;
   }) {
     return await this.db.transaction(async (tx) => {
@@ -146,10 +138,7 @@ export class SessionService {
         .innerJoin(locations, eq(sessions.locationId, locations.id))
         .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
         .where(
-          and(
-            eq(sessions.id, sessionId),
-            eq(userLocations.userId, userId)
-          )
+          and(eq(sessions.id, sessionId), eq(userLocations.userId, userId))
         )
         .limit(1);
 
@@ -177,7 +166,7 @@ export class SessionService {
 
   async getUserReservations(userId: string, sessionId?: string) {
     const conditions = [eq(userSessions.userId, userId)];
-    
+
     if (sessionId) {
       conditions.push(eq(userSessions.sessionId, sessionId));
     }
@@ -207,7 +196,7 @@ export class SessionService {
     locationId?: string;
   }) {
     const conditions = [eq(userLocations.userId, requestingUserId)];
-    
+
     if (locationId) {
       conditions.push(eq(sessions.locationId, locationId));
     }
@@ -251,11 +240,13 @@ export class SessionService {
         .innerJoin(locations, eq(sessions.locationId, locations.id))
         .innerJoin(userLocations, eq(locations.id, userLocations.locationId))
         .innerJoin(userSessions, eq(sessions.id, userSessions.sessionId))
-        .where(and(
-          eq(userLocations.userId, requestingUserId),
-          eq(userSessions.userId, filterUserId),
-          ...(locationId ? [eq(sessions.locationId, locationId)] : [])
-        ));
+        .where(
+          and(
+            eq(userLocations.userId, requestingUserId),
+            eq(userSessions.userId, filterUserId),
+            ...(locationId ? [eq(sessions.locationId, locationId)] : [])
+          )
+        );
     }
 
     return await query;
@@ -275,19 +266,19 @@ export class SessionService {
     instanceDateTo?: string;
   }) {
     const conditions = [eq(userLocations.userId, requestingUserId)];
-    
+
     if (filterUserId) {
       conditions.push(eq(userSessions.userId, filterUserId));
     }
-    
+
     if (locationId) {
       conditions.push(eq(sessions.locationId, locationId));
     }
-    
+
     if (instanceDateFrom) {
       conditions.push(gte(userSessions.instanceDatetime, instanceDateFrom));
     }
-    
+
     if (instanceDateTo) {
       conditions.push(lte(userSessions.instanceDatetime, instanceDateTo));
     }

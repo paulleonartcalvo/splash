@@ -55,10 +55,10 @@ export function LoginForm({
     });
   };
 
-  const onSubmitInValid: SubmitErrorHandler<z.infer<typeof loginFormSchema>> = (
-    errors
-  ) => {
-    alert(JSON.stringify(errors.email?.message));
+  const onSubmitInValid: SubmitErrorHandler<
+    z.infer<typeof loginFormSchema>
+  > = () => {
+    toast.error("Please fix the errors in the form");
   };
 
   return (
@@ -102,7 +102,7 @@ export function LoginForm({
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={mutation.isPending}
+                  disabled={mutation.isPending || !form.formState.isValid}
                 >
                   {mutation.isPending && <Spinner />}
                   {mutation.data?.success

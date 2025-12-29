@@ -23,6 +23,7 @@ const authPluginFn: FastifyPluginAsyncTypebox = async (fastify) => {
     },
   });
 
+
   // Test connection
   try {
     const response = await fetch(`${url}/rest/v1/`, {
@@ -64,6 +65,7 @@ const authPluginFn: FastifyPluginAsyncTypebox = async (fastify) => {
     }
 
     const authHeader = request.headers.authorization;
+    console.log(authHeader)
     if (!authHeader?.startsWith('Bearer ')) {
       return reply.code(401).send({ error: 'Missing authorization token' });
     }

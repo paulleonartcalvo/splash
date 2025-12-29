@@ -1,5 +1,11 @@
-import { and, eq } from 'drizzle-orm';
-import { locations, organizations, userInvites, userLocations, userOrganizations } from "../drizzle/schema";
+import { and, eq } from "drizzle-orm";
+import {
+  locations,
+  organizations,
+  userInvites,
+  userLocations,
+  userOrganizations,
+} from "../db/schema";
 import type { DrizzleDb } from "../plugins/drizzle";
 
 export class InviteService {
@@ -22,7 +28,6 @@ export class InviteService {
         invitedUserEmail,
         organizationId,
         locationId,
-        createdBy,
       })
       .returning();
 
@@ -47,7 +52,10 @@ export class InviteService {
         locationSlug: locations.slug,
       })
       .from(userInvites)
-      .innerJoin(organizations, eq(userInvites.organizationId, organizations.id))
+      .innerJoin(
+        organizations,
+        eq(userInvites.organizationId, organizations.id)
+      )
       .innerJoin(locations, eq(userInvites.locationId, locations.id))
       .where(eq(userInvites.invitedUserEmail, userEmail));
 
@@ -90,7 +98,7 @@ export class InviteService {
         await tx.insert(userOrganizations).values({
           userId,
           organizationId: invite.organizationId,
-          role: 'member',
+          role: "member",
         });
       }
 

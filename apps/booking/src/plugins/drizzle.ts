@@ -10,11 +10,12 @@ export type DrizzleDb = PostgresJsDatabase<Record<string, never>> & {
 const fastifyDrizzleFn: FastifyPluginAsyncTypebox = async (fastify) => {
   const connection = drizzle({
     connection: {
-      password: Bun.env["SUPABASE_PG_PASSWORD"]!,
-      user: Bun.env["SUPABASE_PG_USER"]!,
-      host: Bun.env["SUPABASE_PG_HOST"]!,
-      port: Number(Bun.env["SUPABASE_PG_PORT"]!),
-      database: Bun.env["SUPABASE_PG_DB"]!,
+      prepare: false,
+      host: Bun.env.POSTGRES_HOST,
+      port: Bun.env.POSTGRES_PORT ? parseInt(Bun.env.POSTGRES_PORT) : undefined,
+      database: Bun.env.POSTGRES_DB,
+      user: Bun.env.POSTGRES_USER,
+      password: Bun.env.POSTGRES_PASSWORD,
     },
   });
 

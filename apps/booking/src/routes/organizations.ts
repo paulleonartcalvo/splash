@@ -129,6 +129,7 @@ export const organizationRoutes: FastifyPluginAsyncTypebox = async (fastify) => 
       const user = request.getDecorator<User>("user");
       const { name, slug } = request.body;
 
+
       try {
         const organization = await organizationService.createOrganization({
           name,
