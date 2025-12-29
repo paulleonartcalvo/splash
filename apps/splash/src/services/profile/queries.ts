@@ -17,20 +17,16 @@ export interface GetProfileErrorResponse {
   error: string;
 }
 
-export interface GetProfileArgs {
-  pathParams: {
-    userId: string;
-  };
-}
+export interface GetProfileArgs {}
 
-export const getProfileQueryOptions = (args: GetProfileArgs | SkipToken) => {
+export const getProfileQueryOptions = (args: GetProfileArgs | SkipToken = {}) => {
   return queryOptions<GetProfileSuccessResponse, GetProfileArgs>({
-    queryKey: ["profile", args],
-    url: (args) => `${import.meta.env["VITE_BOOKING_API_URL"]}/profile/${args.pathParams.userId}`,
+    queryKey: ["profile"],
+    url: () => `${import.meta.env["VITE_BOOKING_API_URL"]}/profile`,
     args,
   });
 };
 
-export const useGetProfileQuery = (args: GetProfileArgs | SkipToken) => {
+export const useGetProfileQuery = (args: GetProfileArgs | SkipToken = {}) => {
   return useQuery(getProfileQueryOptions(args));
 };

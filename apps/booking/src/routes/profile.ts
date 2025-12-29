@@ -1,5 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
+import type { User } from "@supabase/supabase-js";
 import type { DrizzleDb } from "../plugins/drizzle";
 import { ProfileService } from "../services/profile";
 
@@ -7,14 +8,11 @@ export const profileRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   const db = fastify.getDecorator<DrizzleDb>("drizzle");
   const profileService = new ProfileService(db);
 
-  // GET /profile/:userId - Get user's profile by ID
+  // GET /profile - Get current user's profile
   fastify.get(
-    "/:userId",
+    "/",
     {
       schema: {
-        params: Type.Object({
-          userId: Type.String(),
-        }),
         response: {
           "2xx": Type.Object({
             data: Type.Object({
@@ -34,10 +32,10 @@ export const profileRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async (request, reply) => {
-      const { userId } = request.params;
+      const user = request.getDecorator<User>("user");
 
       try {
-        const profile = await profileService.getUserProfile(userId);
+        const profile = await profileService.getUserProfile(user.id);
 
         if (!profile) {
           return reply.status(404).send({
@@ -54,14 +52,11 @@ export const profileRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     }
   );
 
-  // PUT /profile/:userId - Update user's profile
+  // PUT /profile - Update current user's profile
   fastify.put(
-    "/:userId",
+    "/",
     {
       schema: {
-        params: Type.Object({
-          userId: Type.String(),
-        }),
         body: Type.Object({
           firstName: Type.Optional(Type.String()),
           lastName: Type.Optional(Type.String()),
@@ -86,11 +81,11 @@ export const profileRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async (request, reply) => {
-      const { userId } = request.params;
+      const user = request.getDecorator<User>("user");
       const { firstName, lastName, avatarUrl } = request.body;
 
       try {
-        const profile = await profileService.updateUserProfile(userId, {
+        const profile = await profileService.updateUserProfile(user.id, {
           firstName,
           lastName,
           avatarUrl,

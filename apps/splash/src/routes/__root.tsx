@@ -114,6 +114,13 @@ function RootComponent() {
 
     if (session && !profileResult.data) {
       console.log("Profile not found for user:", session.user.id);
+      notifs.push({
+        id: "complete-profile",
+        type: "item" as const,
+        title: "Complete your profile",
+        subtitle: "Add more details to your profile",
+        href: "/profile",
+      })
     }
 
     return notifs;
